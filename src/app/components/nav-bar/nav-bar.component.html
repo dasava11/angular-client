@@ -1,1 +1,60 @@
-<p>nav-bar works!</p>
+<div>
+  <div class="d-flex justify-content-start bg-green">
+    <a class="navbar-brand d-flex justify-content-start" routerLink="/"
+      >El Santuario</a
+    >
+  </div>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid d-flex flex-column">
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div
+        class="collapse navbar-collapse d-flex justify-content-around"
+        id="navbarNav"
+      >
+        <ul class="navbar-nav mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/home" routerLinkActive="active"
+              >Inicio</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/about" routerLinkActive="active"
+              >Caja</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/services" routerLinkActive="active"
+              >Inventario</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/contact" routerLinkActive="active"
+              >Proveedores</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/faq" routerLinkActive="active"
+              >Perfil</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/blog" routerLinkActive="active"
+              >Administrador</a
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</div>
