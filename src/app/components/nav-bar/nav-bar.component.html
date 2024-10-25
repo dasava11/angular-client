@@ -1,36 +1,64 @@
 <div>
-  <div class=" d-flex justify-content-between bg-custom p-3">
-    <a class="navbar-brand  fw-bold mx-4" routerLink="/">El Santuario 2001</a>
-    <a class="navbar-brand  fw-bold mx-3" routerLink="/"> 
-      <button class="btn btn-bg-custom" type="button">Cerrar seccion <i class="bi bi-person-circle"></i></button> </a>
+  <div class="d-flex justify-content-between bg-custom p-3">
+    <a class="navbar-brand fw-bold mx-4" routerLink="/">El Santuario 2001</a>
+    <a class="navbar-brand fw-bold mx-3" routerLink="/">
+      <button class="btn btn-bg-custom" type="button">
+        Cerrar seccion <i class="bi bi-person-circle"></i>
+      </button>
+    </a>
   </div>
-  
+
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid d-flex flex-column">
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <div class="collapse navbar-collapse d-flex  justify-content-around" id="navbarNav">
-        <ul class="navbar-nav mb-2 mb-lg-0 ">
+      <div
+        class="collapse navbar-collapse d-flex justify-content-around"
+        id="navbarNav"
+      >
+        <ul class="navbar-nav mb-2 mb-lg-0">
           <li class="nav-item mx-5 fw-bold">
-            <a class="nav-link" routerLink="/home" routerLinkActive="active">Inicio</a>
+            <a class="nav-link" routerLink="/home" routerLinkActive="active"
+              >Inicio</a
+            >
           </li>
           <li class="nav-item mx-5 fw-bold">
-            <a class="nav-link " routerLink="/about" routerLinkActive="active">Caja</a>
+            <a class="nav-link" routerLink="/cash" routerLinkActive="active"
+              >Caja</a
+            >
           </li>
           <li class="nav-item mx-5 fw-bold">
-            <a class="nav-link" routerLink="/services" routerLinkActive="active">Inventario</a>
+            <a
+              class="nav-link"
+              routerLink="/inventory"
+              routerLinkActive="active"
+              >Inventario</a
+            >
           </li>
           <li class="nav-item mx-5 fw-bold">
-            <a class="nav-link" routerLink="/contact" routerLinkActive="active">Proveedores</a>
+            <a class="nav-link" routerLink="/supplier" routerLinkActive="active"
+              >Proveedores</a
+            >
           </li>
           <li class="nav-item mx-5 fw-bold">
-            <a class="nav-link" routerLink="/faq" routerLinkActive="active">Perfil</a>
+            <a class="nav-link" routerLink="/profile" routerLinkActive="active"
+              >Perfil</a
+            >
           </li>
           <li class="nav-item mx-5 fw-bold">
-            <a class="nav-link" routerLink="/blog" routerLinkActive="active">Administrador</a>
+            <a class="nav-link" routerLink="/admin" routerLinkActive="active"
+              >Administrador</a
+            >
           </li>
         </ul>
       </div>
