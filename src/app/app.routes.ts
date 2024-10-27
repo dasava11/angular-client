@@ -7,10 +7,13 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { UsersComponent } from './components/users/users.component';
 
 export const routes: Routes = [
-  {path: 'home', component: HomeComponent },
-  {path: 'cash', component: CashRegisterComponent },
-  {path: 'inventory', component: StocktakingComponent },
-  {path: 'supplier', component: SupplierComponent },
-  {path: 'profile', component: ProfileComponent },
-  {path: 'admin', component: UsersComponent },
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: 'home', component: HomeComponent },
+  { path: 'cash', component: CashRegisterComponent },
+  { path: 'inventory', component: StocktakingComponent },
+  { path: 'supplier', component: SupplierComponent },
+  { path: 'profile', component: ProfileComponent },
+  { path: 'admin', component: UsersComponent },
+  { path: '**', redirectTo: 'home' } 
 ];
+
