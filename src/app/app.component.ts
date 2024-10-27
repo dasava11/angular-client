@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterLink, RouterOutlet } from '@angular/router';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { CashRegisterComponent } from './components/cash-register/cash-register.component';
 import { HomeComponent } from './components/home/home.component';
@@ -16,9 +16,9 @@ import { UsersFormComponent } from './components/users-form/users-form.component
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [NavBarComponent, CashRegisterComponent, HomeComponent, PagesComponent, PriceListComponent, ProductFormComponent, ProfileComponent, StocktakingComponent, SupplierComponent, SupplierFormComponent, UsersComponent, UsersFormComponent, RouterOutlet],
+  imports: [NavBarComponent, CashRegisterComponent, HomeComponent, PagesComponent, PriceListComponent, ProductFormComponent, ProfileComponent, StocktakingComponent, SupplierComponent, SupplierFormComponent, UsersComponent, UsersFormComponent, RouterOutlet, RouterLink],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent {
   title = 'El santuario App';
