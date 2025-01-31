@@ -12,11 +12,14 @@ import { SupplierComponent } from './components/supplier/supplier.component';
 import { SupplierFormComponent } from './components/supplier-form/supplier-form.component';
 import { UsersComponent } from './components/users/users.component';
 import { UsersFormComponent } from './components/users-form/users-form.component';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [NavBarComponent, CashRegisterComponent, HomeComponent, PagesComponent, PriceListComponent, ProductFormComponent, ProfileComponent, StocktakingComponent, SupplierComponent, SupplierFormComponent, UsersComponent, UsersFormComponent, RouterOutlet, RouterLink],
+  imports: [NavBarComponent, CashRegisterComponent, HomeComponent, PagesComponent, PriceListComponent, ProductFormComponent, ProfileComponent, StocktakingComponent, SupplierComponent, SupplierFormComponent, UsersComponent, UsersFormComponent, RouterOutlet, RouterLink, FormsModule,CommonModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })

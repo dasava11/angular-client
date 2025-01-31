@@ -1,1 +1,93 @@
-<p>cash-register works!</p>
+<div class="container mt-4">
+    <h2>Caja</h2>
+  
+    <!-- Buscar productos -->
+    <div class="form-group mb-3">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Buscar producto"
+        (input)="onFilterChange($event)"
+      />
+    </div>
+  
+    <!-- Listado de productos -->
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Producto</th>
+          <th>Precio</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of filteredProducts">
+          <td>{{ product.id }}</td>
+          <td>{{ product.name }}</td>
+          <td>${{ product.price }}</td>
+          <td>
+            <button
+              class="btn btn-sm btn-primary"
+              (click)="addToCart(product)"
+            >
+              Agregar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <!-- Carrito de compras -->
+    <h3>Factura</h3>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Precio Unitario</th>
+          <th>Total</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of cart">
+          <td>{{ item.id }}</td>
+          <td>{{ item.name }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>${{ item.price }}</td>
+          <td>${{ item.total }}</td>
+          <td>
+            <button
+              class="btn btn-sm btn-danger"
+              (click)="removeFromCart(item.id)"
+            >
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <!-- Resumen -->
+    <div class="mt-3">
+      <h4>Subtotal: ${{ subtotal }}</h4>
+      <div class="form-group">
+        <label for="discount">Descuento (%)</label>
+        <input
+          type="number"
+          id="discount"
+          class="form-control"
+          [(ngModel)]="discount"
+          (change)="calculateTotals()"
+        />
+      </div>
+      <h4>Total: ${{ total }}</h4>
+    </div>
+  
+    <!-- Acciones -->
+    <button class="btn btn-success mt-3" (click)="clearCart()">Finalizar</button>
+    <button class="btn btn-warning mt-3" (click)="clearCart()">Limpiar</button>
+  </div>
+  
