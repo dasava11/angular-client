@@ -14,6 +14,19 @@ import { UsersComponent } from './components/users/users.component';
 import { UsersFormComponent } from './components/users-form/users-form.component';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { TypeUserService } from './services/typeUser/type-user.service';
+import { PurchasesService } from './services/purchases/purchases.service';
+import { ShoppingService } from './services/shopping/shopping.service';
+import { CustomerService } from './services/customer/customer.service';
+import { ProductService } from './services/product/product.service';
+import { SupplierService } from './services/supplier/supplier.service';
+import { UsersService } from './services/users/users.service';
+
+
+
+
+
+
 
 
 @Component({
@@ -24,6 +37,13 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'El santuario App';
+  constructor(private shoppingService : ShoppingService, private customerService : CustomerService, private purchasesService : PurchasesService ,
+    private productService : ProductService, private supplierService : SupplierService, private typeUserService : TypeUserService, private userService : UsersService
+   ) {}
+    
+
 }
+
+
+
 
