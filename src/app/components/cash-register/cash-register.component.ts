@@ -1,90 +1,186 @@
-import { Component, OnInit } from '@angular/core';
-import { CashRegisterService } from '../../Services/cash-register.service';
+import { Component, HostListener, OnInit } from '@angular/core';
+import { CashRegisterService } from '../../services/cash-register.service';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Product } from '../../models/product';
+import { ProductService } from '../../services/product/product.service';
+import { ShoppingService } from '../../services/shopping/shopping.service';
 
 @Component({
-  selector: 'cash-register',
+  selector: 'app-cash-register',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './cash-register.component.html',
   styleUrl: './cash-register.component.css'
 })
-export class CashRegisterComponent implements OnInit {
 
-  filteredProducts: any[] = [];
-  filter: string = '';
-  products: any[] = []; // Lista completa de productos
-  cart: any[] = []; // Productos en la factura
-  subtotal: number = 0;
-  discount: number = 0; // Descuento en %
-  total: number = 0;
 
-  constructor(private cashregisterservice: CashRegisterService) {}
 
-  ngOnInit(): void {
-    this.getProducts();
-  }
+export class CashRegisterComponent {
+  today: Date = new Date();
+  purchaseSummary: Product[] = [];
+  barcodeInput = new FormControl('');
+  products: Product[] = [];
+  subtotal = 0;
+  tax = 0;
+  total = 0;
+  isModalOpen = false;
+  cashReceived: number = 0;
+  change: number = 0;
 
-  // Obtener los productos desde el backend
-  getProducts() {
-    // this.cashregisterservice.getProducts().subscribe((data) => {
-    //   this.products = data;
-    //this.filteredProducts = data; // Inicializa la lista filtrada
-    // });
-  }
-  onFilterChange(event: Event) {
-    // Asegurarnos de que el target sea un HTMLInputElement
-    const inputElement = event.target as HTMLInputElement;
-
-    if (inputElement) {
-      const filterValue = inputElement.value.toLowerCase();
-      this.filteredProducts = this.products.filter((product) =>
-        product.name.toLowerCase().includes(filterValue)
-      );
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (event.key === ' ') {
+      this.openPaymentModal();
     }
+
   }
 
-  
 
-  // Agregar producto al carrito
-  addToCart(product: any) {
-    const existingProduct = this.cart.find((p) => p.id === product.id);
-    if (existingProduct) {
-      existingProduct.quantity++;
-      existingProduct.total = existingProduct.quantity * existingProduct.price;
+  constructor(
+    private productService: ProductService,
+    private shoppingService: ShoppingService
+  ) { }
+
+  openPaymentModal() {
+    this.isModalOpen = true;
+    this.purchaseSummary = [...this.products];
+
+    console.log('Compra finalizada');
+    console.log(this.products)
+    
+    const purchaseData = {
+      date: new Date(),
+      userId: 5, // 🔹 Debes obtener el ID del usuario que está vendiendo
+      customer: 1, // 🔹 Puedes permitir ingresar un cliente
+      payment_method: "Efectivo", // 🔹 Se puede hacer un select con los métodos de pago
+      detailShoppingBody: this.products.map(product => ({
+        code: product.code,
+        count: product.quantity,
+        unit_price: product.unit_price,
+        value_taxes: product.value_taxes,
+        total: (product.unit_price + (product.unit_price * product.value_taxes) / 100) * product.quantity
+      })),
+    };
+
+    
+    this.products.forEach(product => {
+      product.total = product.unit_price * product.quantity; // 🔹 Asegurar que 'total' tenga un valor válido
+    });
+
+    this.shoppingService.createShopping(purchaseData).subscribe({
+      next: (response: any) => {
+        alert(`Compra realizada con éxito. Total: ${response.shopping.total_sale}`);
+        this.products = [];
+        this.updateTotals();
+      },
+      error: (error: { error: { error: string; }; }) => {
+        alert("Error al finalizar la compra: " + error.error.error);
+      }
+    });
+  }
+
+  closePaymentModal() {
+    this.isModalOpen = false;
+    this.cashReceived = 0;
+    this.change = 0;
+  }
+
+  calculateChange() {
+    this.change = Math.max(0, this.cashReceived - this.total);
+  }
+
+  updateChange() {
+    this.change = this.cashReceived - this.total;
+  }
+
+
+  confirmPayment() {
+    if (this.cashReceived >= this.total) {
+      alert(`Cambio a devolver: ${this.change.toFixed(2)}`);
+      this.closePaymentModal();
+      this.resetRegister();
     } else {
-      this.cart.push({
-        id: product.id,
-        name: product.name,
-        quantity: 1,
-        price: product.price,
-        total: product.price,
-      });
+      alert("El dinero recibido es insuficiente.");
     }
-    this.calculateTotals();
   }
 
-  // Eliminar producto del carrito
-  removeFromCart(productId: any) {
-    this.cart = this.cart.filter((p) => p.id !== productId);
-    this.calculateTotals();
-  }
-
-  // Calcular totales
-  calculateTotals() {
-    this.subtotal = this.cart.reduce((acc, p) => acc + p.total, 0);
-    const discountAmount = (this.subtotal * this.discount) / 100;
-    this.total = this.subtotal - discountAmount;
-  }
-
-  // Limpiar carrito
-  clearCart() {
-    this.cart = [];
+  resetRegister() {
+    this.products = [];
     this.subtotal = 0;
-    this.discount = 0;
+    this.tax = 0;
     this.total = 0;
+    this.barcodeInput.reset();
   }
+
+
+
+  scanProduct() {
+    const code = this.barcodeInput.value;
+    if (!code) return;
+
+    this.productService.getProductByCode(code).subscribe(product => {
+      if (!product) {
+        console.log("Producto no encontrado");
+        return;
+      }
+
+      const existingProduct = this.products.find(p => p.code === product.code);
+
+      if (existingProduct) {
+        existingProduct.quantity += 1; // Incrementa la cantidad si ya está en la lista
+      } else {
+
+        this.products.push({ ...product, quantity: 1 });
+      }
+      this.updateTotals();
+      this.barcodeInput.reset();
+    },
+      (error) => {
+        console.error('Producto no encontrado:', error);
+      }
+    );
+  }
+
+  removeProduct(product: Product) {
+
+    const index = this.products.findIndex(p => p.code === product.code);
+
+    if (index !== -1) {
+      if (this.products[index].quantity > 1) {
+        this.products[index].quantity -= 1; // Resta una unidad si hay más de una
+      } else {
+        this.products.splice(index, 1); // Elimina solo si queda en 0
+      }
+      this.updateTotals();
+    }
+  }
+
+  updateTotals() {
+    this.subtotal = this.products.reduce((sum, p) => sum + p.unit_price * p.quantity, 0);
+    this.tax = this.subtotal * 0.19;
+    this.total = this.subtotal + this.tax;
+  }
+
+  printSummary() {
+    const printContent = document.getElementById('invoice')?.innerHTML;
+    if (printContent) {
+
+      const printWindow = window.open('', '', 'width=600,height=600');
+      if (printWindow) {
+        printWindow.document.write('<html><head><title>Factura</title></head><body>');
+        printWindow.document.write(printContent);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.print();
+      }
+    }
+  }
+
 }
+
+
+
+
 
 
