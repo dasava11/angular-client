@@ -26,3 +26,4 @@
     DETAIL_PURCHASES_URL: 'https://el-santuario-api.onrender.com/detail-purchases'
 
   };
+
