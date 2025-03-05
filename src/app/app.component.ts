@@ -1,5 +1,9 @@
 import { Component } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
+// Componentes standalone
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { CashRegisterComponent } from './components/cash-register/cash-register.component';
 import { HomeComponent } from './components/home/home.component';
@@ -12,8 +16,8 @@ import { SupplierComponent } from './components/supplier/supplier.component';
 import { SupplierFormComponent } from './components/supplier-form/supplier-form.component';
 import { UsersComponent } from './components/users/users.component';
 import { UsersFormComponent } from './components/users-form/users-form.component';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
+// Servicios
 import { TypeUserService } from './services/typeUser/type-user.service';
 import { PurchasesService } from './services/purchases/purchases.service';
 import { ShoppingService } from './services/shopping/shopping.service';
@@ -22,27 +26,53 @@ import { ProductService } from './services/product/product.service';
 import { SupplierService } from './services/supplier/supplier.service';
 import { UsersService } from './services/users/users.service';
 
-
-
-
-
-
-
-
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [NavBarComponent, CashRegisterComponent, HomeComponent, PagesComponent, PriceListComponent, ProductFormComponent, ProfileComponent, StocktakingComponent, SupplierComponent, SupplierFormComponent, UsersComponent, UsersFormComponent, RouterOutlet, RouterLink, FormsModule,CommonModule],
+  standalone: true, // Se debe marcar como standalone
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterOutlet,
+    RouterLink,
+    NavBarComponent,
+    CashRegisterComponent,
+    HomeComponent,
+    PagesComponent,
+    PriceListComponent,
+    ProductFormComponent,
+    ProfileComponent,
+    StocktakingComponent,
+    SupplierComponent,
+    SupplierFormComponent,
+    UsersComponent,
+    UsersFormComponent,
+  ],
+  providers: [ // Agregar los servicios aquí
+    ShoppingService,
+    CustomerService,
+    PurchasesService,
+    ProductService,
+    SupplierService,
+    TypeUserService,
+    UsersService
+  ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  constructor(private shoppingService : ShoppingService, private customerService : CustomerService, private purchasesService : PurchasesService ,
-    private productService : ProductService, private supplierService : SupplierService, private typeUserService : TypeUserService, private userService : UsersService
-   ) {}
-    
-
+  constructor(
+    private shoppingService: ShoppingService, 
+    private customerService: CustomerService, 
+    private purchasesService: PurchasesService,
+    private productService: ProductService, 
+    private supplierService: SupplierService, 
+    private typeUserService: TypeUserService, 
+    private userService: UsersService
+  ) {}
 }
+
+
+
 
 
 
