@@ -3,7 +3,10 @@ import { RouterLink, RouterOutlet } from '@angular/router';
 
 @Component({
     selector: 'nav-bar',
-    imports: [RouterOutlet, RouterLink],
+
+    standalone: true,
+    imports: [ RouterLink],
+
     templateUrl: './nav-bar.component.html',
     styleUrls: ['./nav-bar.component.css']
 })

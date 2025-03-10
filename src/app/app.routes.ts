@@ -11,6 +11,7 @@ export const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'cash', component: CashRegisterComponent },
   { path: 'inventory', component: StocktakingComponent },
+  // { path: 'purchase-entry', component: PurchaseEntryComponent }, // Ruta para ingreso de facturas
   { path: 'supplier', component: SupplierComponent },
   { path: 'profile', component: ProfileComponent },
   { path: 'admin', component: UsersComponent },

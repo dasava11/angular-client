@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 
-// Componentes standalone
+import { RouterLink, RouterModule, RouterOutlet } from '@angular/router';
+
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { CashRegisterComponent } from './components/cash-register/cash-register.component';
 import { HomeComponent } from './components/home/home.component';
@@ -26,38 +24,17 @@ import { ProductService } from './services/product/product.service';
 import { SupplierService } from './services/supplier/supplier.service';
 import { UsersService } from './services/users/users.service';
 
+
+
+
+
 @Component({
-  selector: 'app-root',
-  standalone: true, // Se debe marcar como standalone
-  imports: [
-    CommonModule,
-    FormsModule,
-    RouterOutlet,
-    RouterLink,
-    NavBarComponent,
-    CashRegisterComponent,
-    HomeComponent,
-    PagesComponent,
-    PriceListComponent,
-    ProductFormComponent,
-    ProfileComponent,
-    StocktakingComponent,
-    SupplierComponent,
-    SupplierFormComponent,
-    UsersComponent,
-    UsersFormComponent,
-  ],
-  providers: [ // Agregar los servicios aquí
-    ShoppingService,
-    CustomerService,
-    PurchasesService,
-    ProductService,
-    SupplierService,
-    TypeUserService,
-    UsersService
-  ],
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+    selector: 'app-root',
+    standalone: true,
+    imports: [RouterModule, RouterOutlet, FormsModule, CommonModule, NavBarComponent],
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.css']
+
 })
 export class AppComponent {
   constructor(

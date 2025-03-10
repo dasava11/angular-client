@@ -26,6 +26,8 @@
           <th>Producto</th>
           <th>Descripción</th>
           <th>Stock</th>
+          <th>Precio Compra</th>
+          <th>Ganancia</th>
           <th>Precio Unidad</th>
           <th>Precio Total Stock</th>
         </tr>
@@ -37,6 +39,8 @@
           <td>{{product.name}}</td>
           <td>{{product.description}}</td>
           <td>{{product.stock}}</td>
+          <td>{{ product.buy_price }}</td>
+          <td>{{ product.code_earn }}</td>
           <td>{{product.unit_price | currency}}</td>
           <td>{{(product.stock * product.unit_price) | currency}}</td>
         </tr>
@@ -72,31 +76,31 @@
           <p><strong>Precio Unidad:</strong> {{ unit_price | currency }}</p>
         </div>
 
-        <div *ngIf="!existingProduct">
-          <div class="mb-3">
+        <div *ngIf="!existingProduct" class="mb-3">
+          
             <label for="productName" class="form-label">Nombre del Producto:</label>
             <input id="productName" type="text" class="form-control" [(ngModel)]="productName" />
-          </div>
+          
 
-          <div class="mb-3">
             <label for="description" class="form-label">Descripción:</label>
             <input id="description" type="text" class="form-control" [(ngModel)]="description" />
-          </div>
+        
 
-          <div class="mb-3">
+          
             <label for="brand" class="form-label">Marca:</label>
             <input id="brand" type="text" class="form-control" [(ngModel)]="brand" />
-          </div>
+          
 
-          <div class="mb-3">
-            <label for="unitPrice" class="form-label">Precio Unidad:</label>
-            <input id="unitPrice" type="number" class="form-control" [(ngModel)]="unit_price" />
-          </div>
+          <label for="buyPrice" class="form-label">Precio de Compra:</label>
+          <input id="buyPrice" type="number" class="form-control" [(ngModel)]="buy_price" />
 
-          <div class="mb-3">
+          <label for="codeEarn" class="form-label">Ganancia (%):</label>
+          <input id="codeEarn" type="number" class="form-control" [(ngModel)]="code_earn" />
+          
+
             <label for="taxes_code" class="form-label">Impuesto:</label>
             <input id="taxes_code" type="text" class="form-control" [(ngModel)]="taxes_code" />
-          </div>
+          
         </div>
 
         <div class="mb-3">
