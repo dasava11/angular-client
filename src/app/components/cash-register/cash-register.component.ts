@@ -8,7 +8,9 @@ import { ShoppingService } from '../../services/shopping/shopping.service';
 
 @Component({
     selector: 'app-cash-register',
+
     standalone: true,
+
     imports: [CommonModule, FormsModule, ReactiveFormsModule],
     templateUrl: './cash-register.component.html',
     styleUrl: './cash-register.component.css'
