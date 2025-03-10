@@ -7,11 +7,11 @@ import { saveAs } from 'file-saver';
 
 
 @Component({
-  selector: 'stocktaking',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './stocktaking.component.html',
-  styleUrl: './stocktaking.component.css'
+    selector: 'stocktaking',
+    standalone: true,
+    imports: [CommonModule, FormsModule],
+    templateUrl: './stocktaking.component.html',
+    styleUrl: './stocktaking.component.css'
 })
 
 
@@ -22,7 +22,7 @@ export class StocktakingComponent {
   productCode: string = '';
   productName: string = '';
   quantity: number = 0;
-  unit_price: number = 0;
+  unit_price: number=0;
   filteredProducts: any[] = []; // Lista filtrada para mostrar en la tabla
   searchTerm: string = ''; // Término de búsqueda
   currentPage: number = 1; // Página actual
@@ -31,6 +31,8 @@ export class StocktakingComponent {
   existingProduct: boolean = false;
   description: string = '';
   brand: string = '';
+  buy_price: number = 0;
+  code_earn: number = 0;
   taxes_code: string = '';
 
 
@@ -76,7 +78,9 @@ export class StocktakingComponent {
     this.taxes_code = '';
     this.description = '';
     this.quantity = 0;
-    this.unit_price = 0;
+    this.buy_price = 0;
+    this.code_earn = 0;
+    this.quantity = 1;
     this.existingProduct = false;
   }
 
@@ -86,17 +90,18 @@ export class StocktakingComponent {
     if (product) {
       this.existingProduct = true;
       this.productName = product.name;
-      this.unit_price = product.unit_price
+      this.buy_price = product.buy_price;
+      this.code_earn = product.code_earn;
     } else {
       this.existingProduct = false;
-      this.productName = '';
-      this.unit_price = 0;
+      // this.productName = '';
+      // this.unit_price = 0;
     }
   }
 
 
   saveProduct() {
-    if (!this.productCode || !this.productName || this.quantity <= 0 || this.unit_price <= 0) {
+    if (!this.productCode || !this.productName || this.quantity <= 0 || this.buy_price <= 0) {
       alert("Por favor, complete todos los datos correctamente");
       return;
     }
@@ -117,7 +122,9 @@ export class StocktakingComponent {
         description: this.description,
         stock: this.quantity,
         brand: this.brand,
-        unit_price: this.unit_price,
+        
+        buy_price: this.buy_price,
+        code_earn: this.code_earn,
         taxes_code: this.taxes_code
 
       }).subscribe(() => {

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterModule, RouterOutlet } from '@angular/router';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { CashRegisterComponent } from './components/cash-register/cash-register.component';
 import { HomeComponent } from './components/home/home.component';
@@ -25,16 +25,12 @@ import { UsersService } from './services/users/users.service';
 
 
 
-
-
-
-
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [NavBarComponent, CashRegisterComponent, HomeComponent, PagesComponent, PriceListComponent, ProductFormComponent, ProfileComponent, StocktakingComponent, SupplierComponent, SupplierFormComponent, UsersComponent, UsersFormComponent, RouterOutlet, RouterLink, FormsModule,CommonModule],
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+    selector: 'app-root',
+    standalone: true,
+    imports: [RouterModule, RouterOutlet, FormsModule, CommonModule, NavBarComponent],
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.css']
 })
 export class AppComponent {
   constructor(private shoppingService : ShoppingService, private customerService : CustomerService, private purchasesService : PurchasesService ,

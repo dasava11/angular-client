@@ -5,11 +5,10 @@ import { Supplier, SupplierService } from '../../services/supplier/supplier.serv
 
 
 @Component({
-  selector: 'supplier',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './supplier.component.html',
-  styleUrl: './supplier.component.css'
+    selector: 'supplier',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './supplier.component.html',
+    styleUrl: './supplier.component.css'
 })
 export class SupplierComponent {
   suppliers: Supplier[] = [];

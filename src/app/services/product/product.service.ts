@@ -31,6 +31,7 @@ export class ProductService {
   }
 
   createProduct(data: any): Observable<any> {
+    console.log('Enviando datos:', data); // Verifica en la consola
     return this.http.post(this.PRODUCT_URL, data);
   }
 
