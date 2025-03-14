@@ -6,5 +6,6 @@ export interface Product {
     quantity: number;
     value_taxes: number;
     total:number;
+    buy_price: number;
 
   }

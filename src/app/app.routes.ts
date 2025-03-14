@@ -5,13 +5,14 @@ import { StocktakingComponent } from './components/stocktaking/stocktaking.compo
 import { SupplierComponent } from './components/supplier/supplier.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { UsersComponent } from './components/users/users.component';
+import { PurchaseComponent } from './components/purchase/purchase.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'cash', component: CashRegisterComponent },
   { path: 'inventory', component: StocktakingComponent },
-  // { path: 'purchase-entry', component: PurchaseEntryComponent }, // Ruta para ingreso de facturas
+  { path: 'purchase', component: PurchaseComponent },
   { path: 'supplier', component: SupplierComponent },
   { path: 'profile', component: ProfileComponent },
   { path: 'admin', component: UsersComponent },

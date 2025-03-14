@@ -9,6 +9,9 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root'
 })
 export class ProductService {
+  filter(arg0: (p: any) => any): never[] {
+    throw new Error('Method not implemented.');
+  }
 
   private PRODUCT_URL = environment.PRODUCT_URL; DETAIL_PURCHASES_URL = environment.DETAIL_PURCHASES_URL;
 
