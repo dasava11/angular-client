@@ -28,6 +28,10 @@ export class PurchasesService {
     return this.http.put(`${this.PURCHASES_URL}/${id}`, data);
   }
 
+  update(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.PURCHASES_URL}/${id}`, data);
+  }
+
   deletePurchase(id: number): Observable<any> {
     return this.http.delete(`${this.PURCHASES_URL}/${id}`);
   }

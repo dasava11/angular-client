@@ -14,8 +14,13 @@ import { SupplierComponent } from './components/supplier/supplier.component';
 import { SupplierFormComponent } from './components/supplier-form/supplier-form.component';
 import { UsersComponent } from './components/users/users.component';
 import { UsersFormComponent } from './components/users-form/users-form.component';
+<<<<<<< HEAD
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+=======
 
 // Servicios
+>>>>>>> 93eb3ddabeb2c120de44db5eb6fc4e2b67e37b45
 import { TypeUserService } from './services/typeUser/type-user.service';
 import { PurchasesService } from './services/purchases/purchases.service';
 import { ShoppingService } from './services/shopping/shopping.service';
@@ -31,7 +36,7 @@ import { UsersService } from './services/users/users.service';
 @Component({
     selector: 'app-root',
     standalone: true,
-    imports: [RouterModule, RouterOutlet, FormsModule, CommonModule, NavBarComponent],
+    imports: [RouterModule, RouterOutlet, FormsModule, CommonModule, NavBarComponent,ReactiveFormsModule],
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css']
 

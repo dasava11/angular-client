@@ -8,9 +8,7 @@ import { saveAs } from 'file-saver';
 
 @Component({
     selector: 'stocktaking',
-
     standalone: true,
-
     imports: [CommonModule, FormsModule],
     templateUrl: './stocktaking.component.html',
     styleUrl: './stocktaking.component.css'

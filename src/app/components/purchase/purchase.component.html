@@ -1,0 +1,66 @@
+<div class="container mt-4">
+  <h2>Registrar Nueva Compra</h2>
+
+  <form (ngSubmit)="savePurchase()">
+    <div class="row">
+      <div class="col-md-6">
+        <label>Fecha</label>
+        <input type="date" class="form-control" [(ngModel)]="selectedPurchase.date" name="date" required>
+      </div>
+
+      <div class="col-md-6">
+        <label>Proveedor</label>
+        <select class="form-control" [(ngModel)]="selectedPurchase.supplier" name="supplier" required>
+          <option *ngFor="let supplier of suppliers" [value]="supplier.id">{{ supplier.name }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-md-6">
+        <label>Buscar Producto</label>
+        <input type="text" class="form-control" [(ngModel)]="searchTerm" name="product" (input)="filterProducts()" placeholder="Código o nombre del producto">
+      </div>
+      <div class="col-md-6">
+        <button type="button" class="btn btn-primary" (click)="addProduct()">Agregar Producto</button>
+      </div>
+    </div>
+
+    <ul *ngIf="filteredProducts.length > 0" class="list-group mt-2">
+      <li *ngFor="let product of filteredProducts" class="list-group-item" (click)="selectProduct(product)">
+        {{ product.name }} - {{ product.code }}
+      </li>
+    </ul>
+
+    <h4 class="mt-4">Productos en la Compra</h4>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Cantidad</th>
+          <th>Precio Unitario</th>
+          <th>Impuestos</th>
+          <th>Total</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of selectedPurchase.details">
+          <td>{{ product.name }}</td>
+          <td><input type="number" class="form-control" [(ngModel)]="item.count" [ngModelOptions]="{standalone: true}"></td>
+          <td><input type="number" class="form-control" [(ngModel)]="item.unit_price" [ngModelOptions]="{standalone: true}"></td>
+          <td><input type="number" class="form-control" [(ngModel)]="item.value_taxes" [ngModelOptions]="{standalone: true}"></td>
+          <td>{{ (item.unit_price + (item.unit_price * item.value_taxes / 100)) * item.count | currency }}</td>
+          <td><button class="btn btn-danger" (click)="removeProduct(item)">Eliminar</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4 class="mt-4">Resumen de la Compra</h4>
+    <p><strong>Subtotal:</strong> {{ calculateSubtotal() | currency }}</p>
+    <p><strong>Impuestos:</strong> {{ calculateTaxes() | currency }}</p>
+    <p><strong>Total:</strong> {{ calculateTotal() | currency }}</p>
+
+    <button type="submit" class="btn btn-success">Confirmar Compra</button>
+  </form>
+</div>
