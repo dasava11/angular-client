@@ -1,11 +1,13 @@
 export interface Product {
     id_products: number;
-    code: string;
     name: string;
-    unit_price: number;
+    description: string;
+    brand: string;
     quantity: number;
+    buy_price: number;
+    code_earn: number;
+    unit_price: number;
+    code: string;
     value_taxes: number;
     total:number;
-    buy_price: number;
-
   }

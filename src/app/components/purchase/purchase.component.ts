@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PurchasesService } from '../../services/purchases/purchases.service';
 import { Purchase } from '../../models/purchases';
-import { PurchaseDetail } from '../../models/purchasesDetail';
+import { PurchaseDetail } from '../../models/detailPurchases';
 import { ProductService } from '../../services/product/product.service';
 import { SupplierService } from '../../services/supplier/supplier.service';
 import { Product } from '../../models/product'; // Asegúrate de tener este modelo
