@@ -1,5 +1,7 @@
+<!-- purchase-form.component.html -->
+
 <div class="container mt-4">
-  <h2>Registrar Nueva Compra</h2>
+  <h2>Ingreso de Factura</h2>
 
   <form [formGroup]="purchaseForm" (ngSubmit)="submitPurchase()">
     <div class="row">
@@ -46,12 +48,9 @@
     <table class="table">
       <thead>
         <tr>
-          <th>Nombre</th>
+          <th>Producto</th>
           <th>Cantidad</th>
-          <th>Precio Unitario</th>
-          <th>Impuestos</th>
           <th>Total</th>
-          <th>Acción</th>
         </tr>
       </thead>
       <tbody>

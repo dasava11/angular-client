@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { PurchasesService } from '../../Services/purchases/purchases.service';
+import { PurchasesService } from '../../services/purchases/purchases.service';
 import { Purchase } from '../../models/purchases';
 import { ProductService } from '../../services/product/product.service';
 import { SupplierService } from '../../services/supplier/supplier.service'; // Se agregó la importación del servicio de proveedores
@@ -27,7 +27,7 @@ export class PurchaseComponent implements OnInit {
   searchTerm: string = ''; // Variable para el campo de búsqueda
 
   constructor(
-    private purchasesService: PurchasesService,
+    private purchasesServices: PurchasesService, 
     private productService: ProductService,
     private supplierService: SupplierService, // Se agregó para obtener los proveedores
     private fb: FormBuilder
@@ -89,7 +89,6 @@ export class PurchaseComponent implements OnInit {
   submitPurchase(): void {
   if (this.purchaseForm.valid && this.selectedProducts.length > 0) {
     const purchaseData: Purchase = {
-      id_purchases: 0, // Se generará en el backend
       supplier: this.purchaseForm.value.supplier,
       date: this.purchaseForm.value.date,
       count: this.selectedProducts.length,
@@ -108,7 +107,7 @@ export class PurchaseComponent implements OnInit {
       }))
     };
 
-    this.purchasesService.createPurchase(purchaseData).subscribe(
+    this.purchasesServices.createPurchase(purchaseData).subscribe(
       response => {
         console.log('Compra realizada con éxito', response);
         this.selectedProducts = [];
