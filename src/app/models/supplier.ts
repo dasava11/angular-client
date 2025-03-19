@@ -1,6 +1,6 @@
 export interface Supplier {
 
-  //id_suppliers?: number;
+  id_suppliers?: number;
   nit: string;
   name: string;
   address: string;
