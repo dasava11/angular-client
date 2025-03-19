@@ -1,12 +1,9 @@
 export interface Supplier {
 
-  id_suppliers?: number;
-  nit: string;
-  name: string;
-  address: string;
-  city: string;
-  phone: string;
-  email: string;
-  active: boolean;
-  
-}
+    id: number;         // Identificador único del proveedor
+    name: string;       // Nombre del proveedor
+    contact?: string;   // Información de contacto (opcional)
+    phone?: string;     // Teléfono del proveedor (opcional)
+    email?: string;     // Correo electrónico (opcional)
+    address?: string;   // Dirección (opcional)
+  }

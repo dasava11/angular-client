@@ -43,8 +43,8 @@ export class CashRegisterComponent {
     this.isModalOpen = true;
     this.purchaseSummary = [...this.products];
 
-    console.log('Compra finalizada');
-    console.log(this.products)
+    // console.log('Compra finalizada');
+    // console.log(this.products)
     
     // const purchaseData = {
     //   date: new Date(),
