@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Supplier, SupplierService } from '../../services/supplier/supplier.service';
+import { SupplierService } from '../../services/supplier/supplier.service';
+import { Supplier } from '../../models/supplier';
 
 
 @Component({
@@ -11,6 +12,7 @@ import { Supplier, SupplierService } from '../../services/supplier/supplier.serv
     styleUrl: './supplier.component.css'
 })
 export class SupplierComponent {
+
   suppliers: Supplier[] = [];
   filteredSuppliers: Supplier[] = [];
   loading: boolean = false;

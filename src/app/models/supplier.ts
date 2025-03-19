@@ -1,4 +1,5 @@
 export interface Supplier {
+
     id: number;         // Identificador único del proveedor
     name: string;       // Nombre del proveedor
     contact?: string;   // Información de contacto (opcional)

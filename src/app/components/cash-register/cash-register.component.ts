@@ -14,8 +14,6 @@ import { ShoppingService } from '../../services/shopping/shopping.service';
     styleUrl: './cash-register.component.css'
 })
 
-
-
 export class CashRegisterComponent {
   today: Date = new Date();
   purchaseSummary: Product[] = [];
@@ -35,7 +33,6 @@ export class CashRegisterComponent {
     }
 
   }
-
 
   constructor(
     private productService: ProductService,
@@ -94,7 +91,6 @@ export class CashRegisterComponent {
     this.change = this.cashReceived - this.total;
   }
 
-
   confirmPayment() {
     if (this.cashReceived >= this.total) {
       alert(`Cambio a devolver: ${this.change.toFixed(2)}`);
@@ -112,8 +108,6 @@ export class CashRegisterComponent {
     this.total = 0;
     this.barcodeInput.reset();
   }
-
-
 
   scanProduct() {
     const code = this.barcodeInput.value;
@@ -176,7 +170,6 @@ export class CashRegisterComponent {
       }
     }
   }
-
 
 }
 
