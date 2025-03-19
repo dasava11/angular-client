@@ -5,9 +5,10 @@ import { PurchaseDetail } from '../../models/purchasesDetail';
 import { ProductService } from '../../services/product/product.service';
 import { SupplierService } from '../../services/supplier/supplier.service';
 import { Product } from '../../models/product'; // Asegúrate de tener este modelo
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-// import { Supplier } from '../../models/supplier'; // Asegúrate de tener este modelo
+import { Supplier } from '../../models/supplier'; // Asegúrate de tener este modelo
+import { InvoiceItem } from '../../models/invoice-item';
 
 @Component({
   selector: 'app-purchases',
@@ -16,115 +17,118 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./purchase.component.css']
 })
 export class PurchaseComponent implements OnInit {
-  purchases: Purchase[] = [];
-  suppliers: any[] = [];
-  products: Product[] = [];
-  filteredProducts: Product[] = [];
-  searchTerm = '';
 
-  selectedPurchase: Purchase = {
-    date: new Date(),
-    supplier: 0,
-    details: [],
-    count: 0,
-    price: 0,
-    taxes: 0
-  };
-product: any;
+
+// @Component({
+//   selector: 'app-purchase-form',
+//   templateUrl: './purchase-form.component.html',
+//   styleUrls: ['./purchase-form.component.css']
+// })
+// export class PurchaseFormComponent implements OnInit {
+
+  name = '';
+  selectedSupplier: Supplier | null = null;    // Proveedor seleccionado
+  barcode: string = '';     // Código de barras escaneado
+  productDetails: Product | null = null; // Detalles del producto
+  quantity = 1;     // Cantidad de producto
+  total = 0;        // Total calculado
+  invoiceItems: InvoiceItem[] = []; // Productos en la factura
 
   constructor(
-    private purchasesService: PurchasesService,
     private productService: ProductService,
-    private supplierService: SupplierService
-  ) {}
+    private supplierService: SupplierService,
+    private purchasesService:PurchasesService
+  ) { }
 
-  ngOnInit(): void {
-    this.getPurchases();
-    this.loadSuppliers();
-    this.loadProducts();
-  }
+  ngOnInit(): void {}
 
-  addProduct(): void {
-    this.selectedPurchase.details.push({
-      name: '',
-      count: 1,
-      unit_price: 0,
-      value_taxes: 0
-    });
-  }
-
-  getPurchases(): void {
-    this.purchasesService.getAllPurchases().subscribe(data => this.purchases = data);
-  }
-
-  loadSuppliers(): void {
-    this.supplierService.getAllSuppliers().subscribe(
-      (data) => (this.suppliers = data),
-      (error) => console.error('Error al cargar proveedores', error)
+  // Buscar proveedor por NIT
+  searchSupplierByName() {
+    if (!this.name.trim()) return;
+    
+    this.supplierService.getSuppliersByName(this.name).subscribe(
+      (data) => this.selectedSupplier = data,
+      () => {
+        alert('Proveedor no encontrado');
+        this.selectedSupplier = null;
+      }
     );
   }
 
-  loadProducts(): void {
-    this.productService.getAllProducts().subscribe(data => this.products = data);
-  }
 
-  filterProducts(): void {
-    if (this.searchTerm.trim()) {
-      this.filteredProducts = this.products.filter((product) =>
-        product.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        product.code.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
-    } else {
-      this.filteredProducts = [];
-    }
-  }
+  // Buscar detalles del producto por el código de barras
+  fetchProductDetails() {
+    if (!this.barcode.trim()) return;
 
-  selectProduct(product: Product): void {
-    const exists = this.selectedPurchase.details.find(p => p.name === product.name);
+    this.productService.getProductByCode(this.barcode).subscribe(
+      (data) => this.productDetails = data,
+      () => {
+        alert('Producto no encontrado');
+        this.productDetails = null;
+      }
+    );
+  }
     
-    if (!exists) {
-      this.selectedPurchase.details.push({
-        name: product.name,
-        unit_price: product.buy_price,
-        count: 0,
-        value_taxes: 0
-      });
+
+  // Calcular el total cuando se ingresa la cantidad
+  calculateTotal() {
+    if (this.productDetails) {
+      this.total = this.quantity * this.productDetails.buy_price * (1 + this.productDetails.taxes_code / 100);
     }
-    this.filteredProducts = [];
-    this.searchTerm = '';
   }
 
-  removeProduct(item: PurchaseDetail): void {
-    this.selectedPurchase.details = this.selectedPurchase.details.filter(i => i !== item);
-  }
-  
+  // Agregar el producto a la lista de productos de la factura
+  addProductToInvoice() {
+    if (!this.productDetails || this.quantity <= 0) return;
 
-  calculateSubtotal(): number {
-    return this.selectedPurchase.details.reduce((total, item) => total + (item.unit_price * item.count), 0);
-  }
-  
-  calculateTaxes(): number {
-    return this.selectedPurchase.details.reduce((total, item) => total + ((item.unit_price * item.value_taxes / 100) * item.count), 0);
-  }
-  
-  calculateTotal(): number {
-    return this.calculateSubtotal() + this.calculateTaxes();
-  }
-
-  savePurchase(): void {
-    console.log('Compra guardada:', this.selectedPurchase);
-    this.purchasesService.createPurchase(this.selectedPurchase).subscribe(() => {
-      alert('Compra registrada exitosamente.');
-      this.selectedPurchase = {
-        date: new Date(),
-        details: [],
-        count: 0,
-        price: 0,
-        taxes: 0
-      };
+    this.invoiceItems.push({
+      productName: this.productDetails.name,
+      quantity: this.quantity,
+      total: this.total
     });
 
-    
+    this.clearProductForm();
   }
-  
+
+  // Limpiar el formulario después de agregar un producto
+  clearProductForm() {
+    this.barcode = '';
+    this.productDetails = null;
+    this.quantity = 1;
+    this.total = 0;
+  }
+
+  // Finalizar la compra y guardar en el inventario
+  finalizePurchase() {
+    if (!this.selectedSupplier) {
+      alert('Debe seleccionar un proveedor');
+      return;
+    }
+
+    if (this.invoiceItems.length === 0) {
+      alert('No hay productos en la factura');
+      return;
+    }
+
+    if (!confirm('¿Está seguro de finalizar la compra?')) return;
+
+    const purchaseData = {
+      date: new Date().toISOString(),
+      supplier: this.selectedSupplier.name, // Enviar NIT del proveedor
+      detailPurchasesBody: this.invoiceItems.map((item) => ({
+        id_products: item.productName, 
+        count: item.quantity,
+        unit_price: this.productDetails?.buy_price ?? 0,
+        value_taxes: this.productDetails?.taxes_code ?? 0,
+      }))
+    };
+
+    this.purchasesService.createPurchase(purchaseData).subscribe(response => {
+      console.log('Compra finalizada', response);
+      alert('Compra guardada con éxito');
+      this.invoiceItems = [];
+      this.selectedSupplier = null;
+      this.name = '';
+    });
+  }
 }

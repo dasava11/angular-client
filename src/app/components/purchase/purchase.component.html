@@ -1,66 +1,67 @@
+<!-- purchase-form.component.html -->
+
 <div class="container mt-4">
-  <h2>Registrar Nueva Compra</h2>
+    <h2>Ingreso de Factura</h2>
 
-  <form (ngSubmit)="savePurchase()">
-    <div class="row">
-      <div class="col-md-6">
-        <label>Fecha</label>
-        <input type="date" class="form-control" [(ngModel)]="selectedPurchase.date" name="date" required>
-      </div>
-
-      <div class="col-md-6">
-        <label>Proveedor</label>
-        <select class="form-control" [(ngModel)]="selectedPurchase.supplier" name="supplier" required>
-          <option *ngFor="let supplier of suppliers" [value]="supplier.id">{{ supplier.name }}</option>
-        </select>
-      </div>
+     <!-- Búsqueda de proveedor por NIT -->
+    <div class="mb-3">
+    <label for="nitInput" class="form-label">Buscar Proveedor por NIT</label>
+    <input type="text" class="form-control" id="nitInput" [(ngModel)]="name" (blur)="searchSupplierByName()">
     </div>
 
-    <div class="row mt-3">
-      <div class="col-md-6">
-        <label>Buscar Producto</label>
-        <input type="text" class="form-control" [(ngModel)]="searchTerm" name="product" (input)="filterProducts()" placeholder="Código o nombre del producto">
+    <div *ngIf="selectedSupplier">
+        <p><strong>Proveedor:</strong> {{ selectedSupplier.name }}</p>
       </div>
-      <div class="col-md-6">
-        <button type="button" class="btn btn-primary" (click)="addProduct()">Agregar Producto</button>
+  
+  
+  
+    <!-- Lista de productos -->
+    <form (ngSubmit)="addProductToInvoice()">
+      <div class="mb-3">
+        <label for="barcodeInput" class="form-label">Escanear Código de Barra</label>
+        <input type="text" class="form-control" id="barcodeInput" [(ngModel)]="barcode" name="barcode" (blur)="fetchProductDetails()">
       </div>
-    </div>
-
-    <ul *ngIf="filteredProducts.length > 0" class="list-group mt-2">
-      <li *ngFor="let product of filteredProducts" class="list-group-item" (click)="selectProduct(product)">
-        {{ product.name }} - {{ product.code }}
-      </li>
-    </ul>
-
-    <h4 class="mt-4">Productos en la Compra</h4>
-    <table class="table">
+  
+      <div *ngIf="productDetails">
+        <p><strong>Producto:</strong> {{ productDetails.name }}</p>
+        <p><strong>Stock:</strong> {{ productDetails.stock }}</p>
+        <p><strong>Precio:</strong> {{ productDetails.buy_price | currency }}</p>
+        <p><strong>Impuestos:</strong> {{ productDetails.taxes_code }}%</p>
+  
+        <!-- Ingreso de cantidad -->
+        <div class="mb-3">
+          <label for="quantityInput" class="form-label">Cantidad</label>
+          <input type="number" class="form-control" id="quantityInput" [(ngModel)]="quantity" (input)="calculateTotal()" name="quantity">
+        </div>
+  
+        <div class="mb-3">
+          <label for="totalInput" class="form-label">Total</label>
+          <input type="text" class="form-control" id="totalInput" [value]="total" readonly>
+        </div>
+  
+        <button type="submit" class="btn btn-primary">Agregar Producto</button>
+      </div>
+    </form>
+  
+    <!-- Tabla de productos agregados -->
+    <h3 class="mt-4">Productos Agregados</h3>
+    <table class="table table-striped">
       <thead>
         <tr>
-          <th>Nombre</th>
+          <th>Producto</th>
           <th>Cantidad</th>
-          <th>Precio Unitario</th>
-          <th>Impuestos</th>
           <th>Total</th>
-          <th>Acción</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let item of selectedPurchase.details">
-          <td>{{ product.name }}</td>
-          <td><input type="number" class="form-control" [(ngModel)]="item.count" [ngModelOptions]="{standalone: true}"></td>
-          <td><input type="number" class="form-control" [(ngModel)]="item.unit_price" [ngModelOptions]="{standalone: true}"></td>
-          <td><input type="number" class="form-control" [(ngModel)]="item.value_taxes" [ngModelOptions]="{standalone: true}"></td>
-          <td>{{ (item.unit_price + (item.unit_price * item.value_taxes / 100)) * item.count | currency }}</td>
-          <td><button class="btn btn-danger" (click)="removeProduct(item)">Eliminar</button></td>
+        <tr *ngFor="let item of invoiceItems">
+          <td>{{ item.productName }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.total | currency }}</td>
         </tr>
       </tbody>
     </table>
-
-    <h4 class="mt-4">Resumen de la Compra</h4>
-    <p><strong>Subtotal:</strong> {{ calculateSubtotal() | currency }}</p>
-    <p><strong>Impuestos:</strong> {{ calculateTaxes() | currency }}</p>
-    <p><strong>Total:</strong> {{ calculateTotal() | currency }}</p>
-
-    <button type="submit" class="btn btn-success">Confirmar Compra</button>
-  </form>
-</div>
+  
+    <!-- Botón para finalizar compra -->
+    <button class="btn btn-success mt-4" (click)="finalizePurchase()">Finalizar Compra</button>
+  </div>

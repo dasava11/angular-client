@@ -12,6 +12,8 @@ export class PurchasesService {
 
   constructor(private http: HttpClient) { }
 
+  
+
   getAllPurchases(): Observable<any> {
     return this.http.get(`${this.PURCHASES_URL}`);
   }

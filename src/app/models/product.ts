@@ -4,8 +4,9 @@ export interface Product {
     name: string;
     unit_price: number;
     quantity: number;
-    value_taxes: number;
+    taxes_code: number;
     total:number;
     buy_price: number;
+    stock: number;
 
   }
