@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { Purchase } from '../../models/purchases';
 
 @Injectable({
   providedIn: 'root'
@@ -12,28 +14,48 @@ export class PurchasesService {
 
   constructor(private http: HttpClient) { }
 
-  getAllPurchases(): Observable<any> {
-    return this.http.get(`${this.PURCHASES_URL}`);
+  getAllPurchases(): Observable<Purchase[]> {
+    return this.http.get<Purchase[]>(`${this.PURCHASES_URL}`).pipe(
+      catchError(error => {
+        console.error('Error fetching purchases', error);
+        return throwError(() => new Error('Error fetching purchases'));
+      })
+    );
   }
 
-  getPurchaseById(id: number): Observable<any> {
-    return this.http.get(`${this.PURCHASES_URL}/${id}`);
+  getPurchaseById(id: number): Observable<Purchase> {
+    return this.http.get<Purchase>(`${this.PURCHASES_URL}/${id}`).pipe(
+      catchError(error => {
+        console.error('Error fetching purchase by ID', error);
+        return throwError(() => new Error('Error fetching purchase by ID'));
+      })
+    );
   }
 
-  createPurchase(data: any): Observable<any> {
-    return this.http.post(this.PURCHASES_URL, data);
+  createPurchase(data: Purchase): Observable<Purchase> {
+    return this.http.post<Purchase>(this.PURCHASES_URL, data).pipe(
+      catchError(error => {
+        console.error('Error creating purchase', error);
+        return throwError(() => new Error('Error creating purchase'));
+      })
+    );
   }
 
-  editPurchase(id: number, data: any): Observable<any> {
-    return this.http.put(`${this.PURCHASES_URL}/${id}`, data);
+  editPurchase(id: number, data: Partial<Purchase>): Observable<Purchase> {
+    return this.http.put<Purchase>(`${this.PURCHASES_URL}/${id}`, data).pipe(
+      catchError(error => {
+        console.error('Error editing purchase', error);
+        return throwError(() => new Error('Error editing purchase'));
+      })
+    );
   }
 
-  update(id: number, data: any): Observable<any> {
-    return this.http.put(`${this.PURCHASES_URL}/${id}`, data);
-  }
-
-  deletePurchase(id: number): Observable<any> {
-    return this.http.delete(`${this.PURCHASES_URL}/${id}`);
+  deletePurchase(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.PURCHASES_URL}/${id}`).pipe(
+      catchError(error => {
+        console.error('Error deleting purchase', error);
+        return throwError(() => new Error('Error deleting purchase'));
+      })
+    );
   }
 }
-

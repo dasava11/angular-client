@@ -1,130 +1,124 @@
 import { Component, OnInit } from '@angular/core';
-import { PurchasesService } from '../../services/purchases/purchases.service';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { PurchasesService } from '../../Services/purchases/purchases.service';
 import { Purchase } from '../../models/purchases';
-import { PurchaseDetail } from '../../models/detailPurchases';
 import { ProductService } from '../../services/product/product.service';
-import { SupplierService } from '../../services/supplier/supplier.service';
-import { Product } from '../../models/product'; // Asegúrate de tener este modelo
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SupplierService } from '../../services/supplier/supplier.service'; // Se agregó la importación del servicio de proveedores
 import { CommonModule } from '@angular/common';
-// import { Supplier } from '../../models/supplier'; // Asegúrate de tener este modelo
 
 @Component({
   selector: 'app-purchases',
-  imports: [ReactiveFormsModule,CommonModule,FormsModule],
+  standalone: true,
+  imports: [CommonModule , FormsModule, ReactiveFormsModule],
   templateUrl: './purchase.component.html',
   styleUrls: ['./purchase.component.css']
 })
-export class PurchaseComponent implements OnInit {
-  purchases: Purchase[] = [];
-  suppliers: any[] = [];
-  products: Product[] = [];
-  filteredProducts: Product[] = [];
-  searchTerm = '';
 
-  selectedPurchase: Purchase = {
-    date: new Date(),
-    supplier: 0,
-    details: [],
-    count: 0,
-    price: 0,
-    taxes: 0
-  };
-product: any;
+
+export class PurchaseComponent implements OnInit {
+  purchaseForm: FormGroup;
+  products: any[] = [];
+  filteredProducts: any[] = [];
+  suppliers: any[] = []; // Lista de proveedores
+  selectedProducts: any[] = [];
+  subtotal: number = 0;
+  taxes: number = 0;
+  total: number = 0;
+  searchTerm: string = ''; // Variable para el campo de búsqueda
 
   constructor(
     private purchasesService: PurchasesService,
     private productService: ProductService,
-    private supplierService: SupplierService
-  ) {}
-
-  ngOnInit(): void {
-    this.getPurchases();
-    this.loadSuppliers();
-    this.loadProducts();
-  }
-
-  addProduct(): void {
-    this.selectedPurchase.details.push({
-      name: '',
-      count: 1,
-      unit_price: 0,
-      value_taxes: 0
+    private supplierService: SupplierService, // Se agregó para obtener los proveedores
+    private fb: FormBuilder
+  ) {
+    this.purchaseForm = this.fb.group({
+      supplier: ['', Validators.required],
+      date: ['', Validators.required]
     });
   }
 
-  getPurchases(): void {
-    this.purchasesService.getAllPurchases().subscribe(data => this.purchases = data);
+  ngOnInit(): void {
+    this.loadProducts();
+    this.loadSuppliers(); // Cargar proveedores al iniciar
+  }
+
+  loadProducts(): void {
+    this.productService.getAllProducts().subscribe(
+      data => {
+        this.products = data;
+        this.filteredProducts = data; // Inicialmente todos los productos están disponibles
+      },
+      error => { console.error('Error loading products', error); }
+    );
   }
 
   loadSuppliers(): void {
     this.supplierService.getAllSuppliers().subscribe(
-      (data) => (this.suppliers = data),
-      (error) => console.error('Error al cargar proveedores', error)
+      data => { this.suppliers = data; },
+      error => { console.error('Error loading suppliers', error); }
     );
   }
 
-  loadProducts(): void {
-    this.productService.getAllProducts().subscribe(data => this.products = data);
-  }
-
   filterProducts(): void {
-    if (this.searchTerm.trim()) {
-      this.filteredProducts = this.products.filter((product) =>
-        product.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        product.code.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
-    } else {
-      this.filteredProducts = [];
-    }
+    this.filteredProducts = this.products.filter(product =>
+      product.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      product.code.toLowerCase().includes(this.searchTerm.toLowerCase())
+    );
   }
 
-  selectProduct(product: Product): void {
-    const exists = this.selectedPurchase.details.find(p => p.name === product.name);
-    
+  selectProduct(product: any): void {
+    const exists = this.selectedProducts.find(p => p.id_products === product.id_products);
     if (!exists) {
-      this.selectedPurchase.details.push({
-        name: product.name,
-        unit_price: product.buy_price,
-        count: 0,
-        value_taxes: 0
-      });
+      this.selectedProducts.push({ ...product, quantity: 1 });
+      this.updateTotals();
     }
-    this.filteredProducts = [];
-    this.searchTerm = '';
   }
 
-  removeProduct(item: PurchaseDetail): void {
-    this.selectedPurchase.details = this.selectedPurchase.details.filter(i => i !== item);
-  }
-  
-
-  calculateSubtotal(): number {
-    return this.selectedPurchase.details.reduce((total, item) => total + (item.unit_price * item.count), 0);
-  }
-  
-  calculateTaxes(): number {
-    return this.selectedPurchase.details.reduce((total, item) => total + ((item.unit_price * item.value_taxes / 100) * item.count), 0);
-  }
-  
-  calculateTotal(): number {
-    return this.calculateSubtotal() + this.calculateTaxes();
+  removeProduct(index: number): void {
+    this.selectedProducts.splice(index, 1);
+    this.updateTotals();
   }
 
-  savePurchase(): void {
-    console.log('Compra guardada:', this.selectedPurchase);
-    this.purchasesService.createPurchase(this.selectedPurchase).subscribe(() => {
-      alert('Compra registrada exitosamente.');
-      this.selectedPurchase = {
-        date: new Date(),
-        details: [],
-        count: 0,
-        price: 0,
-        taxes: 0
-      };
-    });
-
-    
+  updateTotals(): void {
+    this.subtotal = this.selectedProducts.reduce((sum, product) => sum + (product.price * product.quantity), 0);
+    this.taxes = this.subtotal * 0.19; // Suponiendo 19% de IVA
+    this.total = this.subtotal + this.taxes;
   }
-  
+
+  submitPurchase(): void {
+  if (this.purchaseForm.valid && this.selectedProducts.length > 0) {
+    const purchaseData: Purchase = {
+      id_purchases: 0, // Se generará en el backend
+      supplier: this.purchaseForm.value.supplier,
+      date: this.purchaseForm.value.date,
+      count: this.selectedProducts.length,
+      price: this.subtotal, // Se envía como referencia, pero el backend lo recalcula
+      taxes: this.taxes, // Se envía como referencia, pero el backend lo recalcula
+      subtotal: this.subtotal, // Se envía como referencia
+      total: this.total, // Se envía como referencia, pero el backend lo recalcula
+      detailPurchasesBody: this.selectedProducts.map(product => ({
+        id_detail_purchases: '', // Se generará en el backend
+        id_purchases: 0, // Se generará en el backend
+        id_products: product.id_products,
+        count: product.quantity, // Debe ser count, no quantity
+        unit_price: product.unit_price,
+        value_taxes: product.value_taxes, // Enviar el porcentaje, el backend lo procesa
+        total: (product.unit_price + (product.unit_price * product.value_taxes / 100)) * product.quantity // Corrección del cálculo
+      }))
+    };
+
+    this.purchasesService.createPurchase(purchaseData).subscribe(
+      response => {
+        console.log('Compra realizada con éxito', response);
+        this.selectedProducts = [];
+        this.purchaseForm.reset();
+        this.updateTotals(); // Asegúrate de que este método existe y actualiza los valores correctamente
+      },
+      error => {
+        console.error('Error al enviar la compra', error);
+      }
+    );
+    }
+  }
 }
