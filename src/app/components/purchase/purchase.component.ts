@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PurchasesService } from '../../services/purchases/purchases.service';
 import { Purchase } from '../../models/purchases';
-import { PurchaseDetail } from '../../models/detailPurchases';
+import { DetailPurchase } from '../../models/detailPurchases';
 import { ProductService } from '../../services/product/product.service';
 import { SupplierService } from '../../services/supplier/supplier.service';
 import { Product } from '../../models/product'; // Asegúrate de tener este modelo
@@ -17,14 +17,6 @@ import { InvoiceItem } from '../../models/invoice-item';
   styleUrls: ['./purchase.component.css']
 })
 export class PurchaseComponent implements OnInit {
-
-
-// @Component({
-//   selector: 'app-purchase-form',
-//   templateUrl: './purchase-form.component.html',
-//   styleUrls: ['./purchase-form.component.css']
-// })
-// export class PurchaseFormComponent implements OnInit {
 
   name = '';
   selectedSupplier: Supplier | null = null;    // Proveedor seleccionado
@@ -84,7 +76,8 @@ export class PurchaseComponent implements OnInit {
     this.invoiceItems.push({
       productName: this.productDetails.name,
       quantity: this.quantity,
-      total: this.total
+      total: this.total,
+      id_products: this.productDetails.id_products
     });
 
     this.clearProductForm();
@@ -116,7 +109,7 @@ export class PurchaseComponent implements OnInit {
       date: new Date().toISOString(),
       supplier: this.selectedSupplier.name, // Enviar NIT del proveedor
       detailPurchasesBody: this.invoiceItems.map((item) => ({
-        id_products: item.productName, 
+        id_products: item.id_products, 
         count: item.quantity,
         unit_price: this.productDetails?.buy_price ?? 0,
         value_taxes: this.productDetails?.taxes_code ?? 0,
@@ -130,5 +123,7 @@ export class PurchaseComponent implements OnInit {
       this.selectedSupplier = null;
       this.name = '';
     });
+    console.log('Datos de la compra:', purchaseData);
+
   }
 }

@@ -43,38 +43,38 @@ export class CashRegisterComponent {
     this.isModalOpen = true;
     this.purchaseSummary = [...this.products];
 
-    // console.log('Compra finalizada');
-    // console.log(this.products)
+    console.log('Compra finalizada');
+    console.log(this.products)
     
-    // const purchaseData = {
-    //   date: new Date(),
-    //   userId: 5, 
-    //   customer: 1, 
-    //   payment_method: "Efectivo", 
-    //   detailShoppingBody: this.products.map(product => ({
-    //     code: product.code,
-    //     count: product.quantity,
-    //     unit_price: product.unit_price,
-    //     value_taxes: product.value_taxes,
-    //     total: (product.unit_price + (product.unit_price * product.value_taxes) / 100) * product.quantity
-    //   })),
-    // };
+    const purchaseData = {
+      date: new Date(),
+      userId: 5, 
+      customer: 1, 
+      payment_method: "Efectivo", 
+      detailShoppingBody: this.products.map(product => ({
+        code: product.code,
+        count: product.quantity,
+        unit_price: product.unit_price,
+        value_taxes: product.taxes_code,
+        total: (product.unit_price + (product.unit_price * product.taxes_code) / 100) * product.quantity
+      })),
+    };
 
     
-    // this.products.forEach(product => {
-    //   product.total = product.unit_price * product.quantity; // 🔹 Asegurar que 'total' tenga un valor válido
-    // });
+    this.products.forEach(product => {
+      product.total = product.unit_price * product.quantity; // 🔹 Asegurar que 'total' tenga un valor válido
+    });
 
-    // this.shoppingService.createShopping(purchaseData).subscribe({
-    //   next: (response: any) => {
-    //     alert(`Compra realizada con éxito. Total: ${response.shopping.total_sale}`);
-    //     this.products = [];
-    //     this.updateTotals();
-    //   },
-    //   error: (error: { error: { error: string; }; }) => {
-    //     alert("Error al finalizar la compra: " + error.error.error);
-    //   }
-    // });
+    this.shoppingService.createShopping(purchaseData).subscribe({
+      next: (response: any) => {
+        alert(`Compra realizada con éxito. Total: ${response.shopping.total_sale}`);
+        this.products = [];
+        this.updateTotals();
+      },
+      error: (error: { error: { error: string; }; }) => {
+        alert("Error al finalizar la compra: " + error.error.error);
+      }
+    });
   }
 
   closePaymentModal() {
