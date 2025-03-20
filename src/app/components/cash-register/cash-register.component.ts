@@ -60,6 +60,7 @@ export class CashRegisterComponent {
             } else {
                 const newItem: DetailShoppings = {
                     id_products: product.id,
+                    code: product.code,
                     count: 1,
                     unit_price: product.unit_price,
                     value_taxes: 0, // Lo maneja el backend

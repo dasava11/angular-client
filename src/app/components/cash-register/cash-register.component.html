@@ -31,7 +31,7 @@
         </thead>
         <tbody>
           <tr *ngFor="let item of shoppingData.detail_shopping">
-            <td>{{ item.id_products }}</td>
+            <td>{{ item.code }}</td>
             <td>{{ item.count }}</td>
             <td>{{ item.unit_price | currency }}</td>
             <td>{{ item.total | currency }}</td>
