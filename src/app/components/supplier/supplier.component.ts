@@ -17,7 +17,10 @@ export class SupplierComponent {
   filteredSuppliers: Supplier[] = [];
   loading: boolean = false;
   filterText: string = '';
-  supplierForm: Supplier = { nit: '', name: '', address: '', city: '', phone: '', email: '', active: true };
+  supplierForm: Supplier = {
+    nit: '', name: '', address: '', city: '', phone: '', email: '', active: true,
+    id_suppliers: 0
+  };
   isEditing: boolean = false;
   currentPage: number = 1; // Página actual
   itemsPerPage: number = 10; // Elementos por página
@@ -85,7 +88,7 @@ export class SupplierComponent {
     }
   }
   resetForm() {
-    this.supplierForm = { nit: '', name: '', address: '', city: '', phone: '', email: '', active: true };
+    this.supplierForm = { nit: '', name: '', address: '', city: '', phone: '', email: '', active: true, id_suppliers: 0 };
     this.isEditing = false;
   }
 

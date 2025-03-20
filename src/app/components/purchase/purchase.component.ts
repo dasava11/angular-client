@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PurchasesService } from '../../services/purchases/purchases.service';
 import { Purchase } from '../../models/purchases';
+
+import { DetailPurchase } from '../../models/detailPurchases';
 import { ProductService } from '../../services/product/product.service';
 import { SupplierService } from '../../services/supplier/supplier.service'; // Se agregó la importación del servicio de proveedores
 import { CommonModule } from '@angular/common';
@@ -14,17 +16,16 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./purchase.component.css']
 })
 
-
 export class PurchaseComponent implements OnInit {
-  purchaseForm: FormGroup;
-  products: any[] = [];
-  filteredProducts: any[] = [];
-  suppliers: any[] = []; // Lista de proveedores
-  selectedProducts: any[] = [];
-  subtotal: number = 0;
-  taxes: number = 0;
-  total: number = 0;
-  searchTerm: string = ''; // Variable para el campo de búsqueda
+
+  name = '';
+  selectedSupplier: Supplier | null = null;    // Proveedor seleccionado
+  barcode: string = '';     // Código de barras escaneado
+  productDetails: Product | null = null; // Detalles del producto
+  quantity = 1;     // Cantidad de producto
+  total = 0;        // Total calculado
+  invoiceItems: InvoiceItem[] = []; // Productos en la factura
+
 
   constructor(
     private purchasesServices: PurchasesService, 
@@ -75,9 +76,20 @@ export class PurchaseComponent implements OnInit {
     }
   }
 
-  removeProduct(index: number): void {
-    this.selectedProducts.splice(index, 1);
-    this.updateTotals();
+
+  // Agregar el producto a la lista de productos de la factura
+  addProductToInvoice() {
+    if (!this.productDetails || this.quantity <= 0) return;
+
+    this.invoiceItems.push({
+      productName: this.productDetails.name,
+      quantity: this.quantity,
+      total: this.total,
+      id_products: this.productDetails.id_products
+    });
+
+    this.clearProductForm();
+
   }
 
   updateTotals(): void {
@@ -86,38 +98,41 @@ export class PurchaseComponent implements OnInit {
     this.total = this.subtotal + this.taxes;
   }
 
-  submitPurchase(): void {
-  if (this.purchaseForm.valid && this.selectedProducts.length > 0) {
-    const purchaseData: Purchase = {
-      supplier: this.purchaseForm.value.supplier,
-      date: this.purchaseForm.value.date,
-      count: this.selectedProducts.length,
-      price: this.subtotal, // Se envía como referencia, pero el backend lo recalcula
-      taxes: this.taxes, // Se envía como referencia, pero el backend lo recalcula
-      subtotal: this.subtotal, // Se envía como referencia
-      total_price: this.total, // Se envía como referencia, pero el backend lo recalcula
-      detailPurchasesBody: this.selectedProducts.map(product => ({
-        id_detail_purchases: '', // Se generará en el backend
-        id_purchases: 0, // Se generará en el backend
-        id_products: product.id_products,
-        count: product.quantity, // Debe ser count, no quantity
-        unit_price: product.unit_price,
-        value_taxes: product.value_taxes, // Enviar el porcentaje, el backend lo procesa
-        total: (product.unit_price + (product.unit_price * product.value_taxes / 100)) * product.quantity // Corrección del cálculo
+
+  // Finalizar la compra y guardar en el inventario
+  finalizePurchase() {
+    if (!this.selectedSupplier) {
+      alert('Debe seleccionar un proveedor');
+      return;
+    }
+
+    if (this.invoiceItems.length === 0) {
+      alert('No hay productos en la factura');
+      return;
+    }
+
+    if (!confirm('¿Está seguro de finalizar la compra?')) return;
+
+    const purchaseData = {
+      date: new Date().toISOString(),
+      supplier: this.selectedSupplier.name, // Enviar NIT del proveedor
+      detailPurchasesBody: this.invoiceItems.map((item) => ({
+        id_products: item.id_products, 
+        count: item.quantity,
+        unit_price: this.productDetails?.buy_price ?? 0,
+        value_taxes: this.productDetails?.taxes_code ?? 0,
       }))
     };
 
-    this.purchasesServices.createPurchase(purchaseData).subscribe(
-      response => {
-        console.log('Compra realizada con éxito', response);
-        this.selectedProducts = [];
-        this.purchaseForm.reset();
-        this.updateTotals(); // Asegúrate de que este método existe y actualiza los valores correctamente
-      },
-      error => {
-        console.error('Error al enviar la compra', error);
-      }
-    );
-    }
+    this.purchasesService.createPurchase(purchaseData).subscribe(response => {
+      console.log('Compra finalizada', response);
+      alert('Compra guardada con éxito');
+      this.invoiceItems = [];
+      this.selectedSupplier = null;
+      this.name = '';
+    });
+    console.log('Datos de la compra:', purchaseData);
+
+=
   }
 }

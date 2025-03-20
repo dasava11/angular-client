@@ -3,12 +3,13 @@ export interface Product {
     name: string;
     description: string;
     brand: string;
-    stock: number;
-    buy_price: number;
-    code_earn: number;
-    unit_price: number;
-    code: string;
+
+    quantity: number;
     taxes_code: number;
     total:number;
-    active: boolean
+    buy_price: number;
+    stock: number;
+    code:number;
+    unit_price:number
+
   }
