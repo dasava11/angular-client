@@ -1,41 +1,51 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { Customer } from '../../models/customer';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CustomerService {
-  private CUSTOMER_URL = environment.CUSTOMER_URL;
+  private readonly CUSTOMER_URL = environment.CUSTOMER_URL;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  
-
-  getAllCustomers(): Observable<any> {
-    return this.http.get(`${this.CUSTOMER_URL}`);
+  getAllCustomers(): Observable<Customer[]> {
+    return this.http.get<Customer[]>(this.CUSTOMER_URL)
+      .pipe(catchError(this.handleError));
   }
 
-  getCustomerById(id: number): Observable<any> {
-    return this.http.get(`${this.CUSTOMER_URL}/${id}`);
+  getCustomerById(id: number): Observable<Customer> {
+    return this.http.get<Customer>(`${this.CUSTOMER_URL}/${id}`)
+      .pipe(catchError(this.handleError));
   }
 
-  getCustomerByName(name: string): Observable<any> {
-    return this.http.get(`${this.CUSTOMER_URL}?name=${name}`);
+  getCustomerByName(name: string): Observable<Customer[]> {
+    const params = new HttpParams().set('name', name);
+    return this.http.get<Customer[]>(this.CUSTOMER_URL, { params })
+      .pipe(catchError(this.handleError));
   }
 
-  createCustomer(data: any): Observable<any> {
-    return this.http.post(this.CUSTOMER_URL, data);
+  createCustomer(data: Omit<Customer, 'id_customers'>): Observable<Customer> {
+    return this.http.post<Customer>(this.CUSTOMER_URL, data)
+      .pipe(catchError(this.handleError));
   }
 
-  deleteCustomer(id: number): Observable<any> {
-    return this.http.delete(`${this.CUSTOMER_URL}/${id}`);
+  deleteCustomer(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.CUSTOMER_URL}/${id}`)
+      .pipe(catchError(this.handleError));
   }
 
-  editCustomer(id: number, data:{name:string; document:number; phone:number;email:string}): Observable<any> {
-    return this.http.put(`${this.CUSTOMER_URL}/${id}`, data);
+  editCustomer(id: number, data: Partial<Customer>): Observable<Customer> {
+    return this.http.put<Customer>(`${this.CUSTOMER_URL}/${id}`, data)
+      .pipe(catchError(this.handleError));
+  }
+
+  private handleError(error: any): Observable<never> {
+    console.error('Error en la petición HTTP:', error);
+    return throwError(() => new Error(error.message || 'Error en el servidor'));
   }
 }
-
-

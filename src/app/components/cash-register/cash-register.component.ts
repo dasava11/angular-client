@@ -52,14 +52,14 @@ export class CashRegisterComponent {
                 return;
             }
 
-            const existingProduct = this.shoppingData.detail_shopping.find(p => p.id_products === product.id);
+            const existingProduct = this.shoppingData.detail_shopping.find(p => p.id_products === product.id_product);
 
             if (existingProduct) {
                 existingProduct.count += 1;
                 existingProduct.total = existingProduct.count * existingProduct.unit_price;
             } else {
                 const newItem: DetailShoppings = {
-                    id_products: product.id,
+                    id_products: product.id_product ?? 0,
                     code: product.code,
                     count: 1,
                     unit_price: product.unit_price,

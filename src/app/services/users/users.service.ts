@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { User } from '../../models/user'; 
 
 @Injectable({
   providedIn: 'root'
@@ -12,27 +14,67 @@ export class UsersService {
 
   constructor(private http: HttpClient) { }
 
-  getAllUsers(): Observable<any> {
-    return this.http.get(`${this.USERS_URL}`);
+  getAllUsers(): Observable<User[]> {
+    return this.http.get<User[]>(this.USERS_URL).pipe(
+      map(response => response),
+      catchError(this.handleError)
+    );
   }
 
-  getUserById(id: number): Observable<any> {
-    return this.http.get(`${this.USERS_URL}/${id}`);
+  getUserById(user_id: number): Observable<User> {
+    return this.http.get<User>(`${this.USERS_URL}/${user_id}`).pipe(
+      map(response => response),
+      catchError(this.handleError)
+    );
   }
 
-  getUserByName(username: string): Observable<any> {
-    return this.http.get(`${this.USERS_URL}?username=${username}`);
+  getUserByName(username: string): Observable<User[]> {
+    return this.http.get<User[]>(`${this.USERS_URL}`, { params: { username } }).pipe(
+      map(response => response),
+      catchError(this.handleError)
+    );
   }
 
-  createUser(data: any): Observable<any> {
-    return this.http.post(this.USERS_URL, data);
+  createUser(data: User): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(this.USERS_URL, data).pipe(
+      map(response => response),
+      catchError(this.handleError)
+    );
   }
 
-  editUser(id: number, data: {username:string;password:string;email:string;type_user:number;active:boolean}): Observable<any> {
-    return this.http.put(`${this.USERS_URL}/${id}`, data);
+  editUser(user_id: number, data: Partial<User>): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(`${this.USERS_URL}/${user_id}`, data).pipe(
+      map(response => response),
+      catchError(this.handleError)
+    );
   }
 
-  deleteUser(id: number): Observable<any> {
-    return this.http.delete(`${this.USERS_URL}/${id}`);
+  toggleUserActive(user_id: number): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(`${this.USERS_URL}/${user_id}/toggle-active`, {}).pipe(
+      map(response => response),
+      catchError(this.handleError)
+    );
+  }
+
+  destroyUser(user_id: number): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.USERS_URL}/${user_id}`).pipe(
+      map(response => response),
+      catchError(this.handleError)
+    );
+  }
+
+  // Manejo de errores centralizado
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    let errorMessage = 'Ocurrió un error inesperado';
+    
+    if (error.error instanceof ErrorEvent) {
+      // Error del lado del cliente
+      errorMessage = `Error: ${error.error.message}`;
+    } else {
+      // Error del lado del servidor
+      errorMessage = `Error ${error.status}: ${error.message}`;
+    }
+    
+    return throwError(() => new Error(errorMessage));
   }
 }
