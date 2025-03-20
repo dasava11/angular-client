@@ -1,7 +1,7 @@
 import { DetailShoppings } from "./detailShoppings";
 
-export interface Purchase {
-  id_shopping: number;
+export interface Shopping {
+  id_shopping?: number;
   date: Date;
   user_id: number;
   customer?: number;

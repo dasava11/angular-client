@@ -1,8 +1,9 @@
 export interface Product {
-    id_products: number;
+    id_product?: number;
     name: string;
     description: string;
     brand: string;
+
     quantity: number;
     taxes_code: number;
     total:number;
@@ -10,4 +11,5 @@ export interface Product {
     stock: number;
     code:number;
     unit_price:number
+
   }

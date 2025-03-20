@@ -1,4 +1,5 @@
 export interface Supplier {
+
     id_suppliers: number;         // Identificador único del proveedor
     nit: string;
     name: string;       // Nombre del proveedor
@@ -9,3 +10,4 @@ export interface Supplier {
     email?: string;     // Correo electrónico (opcional)
     active: boolean; 
   }
+

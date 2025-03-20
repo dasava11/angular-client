@@ -1,21 +1,21 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PurchasesService } from '../../services/purchases/purchases.service';
 import { Purchase } from '../../models/purchases';
+
 import { DetailPurchase } from '../../models/detailPurchases';
 import { ProductService } from '../../services/product/product.service';
-import { SupplierService } from '../../services/supplier/supplier.service';
-import { Product } from '../../models/product'; // Asegúrate de tener este modelo
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SupplierService } from '../../services/supplier/supplier.service'; // Se agregó la importación del servicio de proveedores
 import { CommonModule } from '@angular/common';
-import { Supplier } from '../../models/supplier'; // Asegúrate de tener este modelo
-import { InvoiceItem } from '../../models/invoice-item';
 
 @Component({
   selector: 'app-purchases',
-  imports: [ReactiveFormsModule,CommonModule,FormsModule],
+  standalone: true,
+  imports: [CommonModule , FormsModule, ReactiveFormsModule],
   templateUrl: './purchase.component.html',
   styleUrls: ['./purchase.component.css']
 })
+
 export class PurchaseComponent implements OnInit {
 
   name = '';
@@ -26,48 +26,56 @@ export class PurchaseComponent implements OnInit {
   total = 0;        // Total calculado
   invoiceItems: InvoiceItem[] = []; // Productos en la factura
 
+
   constructor(
+    private purchasesServices: PurchasesService, 
     private productService: ProductService,
-    private supplierService: SupplierService,
-    private purchasesService:PurchasesService
-  ) { }
+    private supplierService: SupplierService, // Se agregó para obtener los proveedores
+    private fb: FormBuilder
+  ) {
+    this.purchaseForm = this.fb.group({
+      supplier: ['', Validators.required],
+      date: ['', Validators.required]
+    });
+  }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.loadProducts();
+    this.loadSuppliers(); // Cargar proveedores al iniciar
+  }
 
-  // Buscar proveedor por NIT
-  searchSupplierByName() {
-    if (!this.name.trim()) return;
-    
-    this.supplierService.getSuppliersByName(this.name).subscribe(
-      (data) => this.selectedSupplier = data,
-      () => {
-        alert('Proveedor no encontrado');
-        this.selectedSupplier = null;
-      }
+  loadProducts(): void {
+    this.productService.getAllProducts().subscribe(
+      data => {
+        this.products = data;
+        this.filteredProducts = data; // Inicialmente todos los productos están disponibles
+      },
+      error => { console.error('Error loading products', error); }
     );
   }
 
-
-  // Buscar detalles del producto por el código de barras
-  fetchProductDetails() {
-    if (!this.barcode.trim()) return;
-
-    this.productService.getProductByCode(this.barcode).subscribe(
-      (data) => this.productDetails = data,
-      () => {
-        alert('Producto no encontrado');
-        this.productDetails = null;
-      }
+  loadSuppliers(): void {
+    this.supplierService.getAllSuppliers().subscribe(
+      data => { this.suppliers = data; },
+      error => { console.error('Error loading suppliers', error); }
     );
   }
-    
 
-  // Calcular el total cuando se ingresa la cantidad
-  calculateTotal() {
-    if (this.productDetails) {
-      this.total = this.quantity * this.productDetails.buy_price * (1 + this.productDetails.taxes_code / 100);
+  filterProducts(): void {
+    this.filteredProducts = this.products.filter(product =>
+      product.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      product.code.toLowerCase().includes(this.searchTerm.toLowerCase())
+    );
+  }
+
+  selectProduct(product: any): void {
+    const exists = this.selectedProducts.find(p => p.id_products === product.id_products);
+    if (!exists) {
+      this.selectedProducts.push({ ...product, quantity: 1 });
+      this.updateTotals();
     }
   }
+
 
   // Agregar el producto a la lista de productos de la factura
   addProductToInvoice() {
@@ -81,15 +89,15 @@ export class PurchaseComponent implements OnInit {
     });
 
     this.clearProductForm();
+
   }
 
-  // Limpiar el formulario después de agregar un producto
-  clearProductForm() {
-    this.barcode = '';
-    this.productDetails = null;
-    this.quantity = 1;
-    this.total = 0;
+  updateTotals(): void {
+    this.subtotal = this.selectedProducts.reduce((sum, product) => sum + (product.price * product.quantity), 0);
+    this.taxes = this.subtotal * 0.19; // Suponiendo 19% de IVA
+    this.total = this.subtotal + this.taxes;
   }
+
 
   // Finalizar la compra y guardar en el inventario
   finalizePurchase() {
@@ -125,5 +133,6 @@ export class PurchaseComponent implements OnInit {
     });
     console.log('Datos de la compra:', purchaseData);
 
+=
   }
 }

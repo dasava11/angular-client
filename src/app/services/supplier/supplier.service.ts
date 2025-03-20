@@ -1,53 +1,80 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Supplier } from '../../models/supplier';
 
 @Injectable({
   providedIn: 'root'
 })
-
-
 export class SupplierService {
-
-
   private SUPPLIER_URL = environment.SUPPLIER_URL;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  createSuppliers(data: any): Observable<any> {
-    return this.http.post(this.SUPPLIER_URL, data);
+  /** ✅ Crea un nuevo proveedor en la base de datos */
+  createSuppliers(data: Supplier): Observable<Supplier> {
+    return this.http.post<Supplier>(this.SUPPLIER_URL, data)
+      .pipe(catchError(this.handleError));
   }
 
-  getAllSuppliers(): Observable<any> {
-    return this.http.get(`${this.SUPPLIER_URL}`);
+  /** ✅ Obtiene todos los proveedores */
+  getAllSuppliers(): Observable<Supplier[]> {
+    return this.http.get<Supplier[]>(this.SUPPLIER_URL)
+      .pipe(catchError(this.handleError));
   }
 
-  getSuppliersById(id: number): Observable<any> {
-    return this.http.get(`${this.SUPPLIER_URL}/${id}`);
+  /** ✅ Obtiene un proveedor por su ID */
+  getSuppliersById(id: number): Observable<Supplier> {
+    return this.http.get<Supplier>(`${this.SUPPLIER_URL}/${id}`)
+      .pipe(catchError(this.handleError));
   }
 
-  getSuppliersByName(name: string): Observable<any> {
-    return this.http.get(`${this.SUPPLIER_URL}?name=${name}`);
+
+  /** ✅ Busca proveedores por nombre */
+  getSuppliersByName(name: string): Observable<Supplier[]> {
+    return this.http.get<Supplier[]>(`${this.SUPPLIER_URL}?name=${name}`)
+      .pipe(catchError(this.handleError));
   }
 
-  // editSuppliers(id: number, data: {nit:number; name:string; address:string; city:string;phone:number,email:string; active:boolean}): Observable<any> {
-  //   return this.http.put(`${this.SUPPLIER_URL}/${id}`, data);
-  // }
-
+  /** 🔄 Actualiza los datos generales de un proveedor (nombre, dirección, etc.) */
   updateSupplier(id_suppliers: number, supplierData: Partial<Supplier>): Observable<Supplier> {
-    return this.http.put<Supplier>(`${this.SUPPLIER_URL}/${id_suppliers}`, supplierData);
+    return this.http.put<Supplier>(`${this.SUPPLIER_URL}/${id_suppliers}`, supplierData)
+      .pipe(catchError(this.handleError));
   }
 
-  updateSupplierStatus(id_suppliers: number, deleted: boolean): Observable<any> {
-    return this.http.put(`${this.SUPPLIER_URL}/${id_suppliers}`, {deleted});
+  /** 🔄 Cambia solo el estado de un proveedor (activo/inactivo) */
+  updateSupplierStatus(id_suppliers: number, active: boolean): Observable<Supplier> {
+    return this.http.put<Supplier>(`${this.SUPPLIER_URL}/${id_suppliers}`, { active })
+      .pipe(catchError(this.handleError));
   }
 
-  deleteSuppliers(santuario_id: number): Observable<any> {
-    return this.http.delete(`${this.SUPPLIER_URL}/delete/${santuario_id}`);
+  /** 🔴 Desactiva un proveedor (NO lo elimina, solo lo desactiva en el sistema) */
+  deleteSupplier(id_suppliers: number): Observable<Supplier> {
+    return this.http.delete<Supplier>(`${this.SUPPLIER_URL}/${id_suppliers}`)
+      .pipe(catchError(this.handleError));
   }
 
+  /** ❌ Elimina permanentemente un proveedor de la base de datos */
+  destroySupplier(id_suppliers: number): Observable<Supplier> {
+    return this.http.delete<Supplier>(`${this.SUPPLIER_URL}/destroy/${id_suppliers}`)
+      .pipe(catchError(this.handleError));
+  }
 
+  /** 🔴 Método para manejar errores en las peticiones HTTP */
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    let errorMessage = 'Ocurrió un error inesperado';
+
+    if (error.error instanceof ErrorEvent) {
+      // Error del lado del cliente
+      errorMessage = `Error: ${error.error.message}`;
+    } else {
+      // Error del lado del servidor
+      errorMessage = `Error ${error.status}: ${error.message}`;
+    }
+
+    console.error(errorMessage);
+    return throwError(() => new Error(errorMessage));
+  }
 }
-

@@ -81,7 +81,7 @@ export class SupplierComponent {
   deleteSuppliers(id_suppliers: number) {
 
     if (confirm('¿Estás seguro de desactivar este proveedor?')) {
-      this.supplierService.deleteSuppliers(id_suppliers).subscribe(() => {
+      this.supplierService.deleteSupplier(id_suppliers).subscribe(() => {
 
         this.loadSuppliers();
       });
@@ -93,7 +93,7 @@ export class SupplierComponent {
   }
 
   toggleSupplierStatus(supplier: Supplier) {
-    this.supplierService.deleteSuppliers(supplier.id_suppliers!).subscribe(() => {
+    this.supplierService.deleteSupplier(supplier.id_suppliers!).subscribe(() => {
       supplier.active = !supplier.active; // Cambia visualmente el estado en la interfaz
     });
   }
