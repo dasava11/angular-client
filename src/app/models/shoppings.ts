@@ -1,7 +1,7 @@
 import { DetailShoppings } from "./detailShoppings";
 
 export interface Shopping {
-  //id_shopping: number;
+  id_shopping?: number;
   date: Date;
   user_id: number;
   customer?: number;

@@ -10,61 +10,57 @@ import { DetailPurchase } from '../../models/detailPurchases';
 })
 export class DetailPurchasesService {
 
-  private DETAIL_PURCHASES_URL = environment.DETAIL_PURCHASES_URL;
+  private readonly DETAIL_PURCHASES_URL = environment.DETAIL_PURCHASES_URL;
 
   constructor(private http: HttpClient) { }
 
+  /** Obtiene todos los detalles de compras */
   getAllDetails(): Observable<DetailPurchase[]> {
     return this.http.get<DetailPurchase[]>(this.DETAIL_PURCHASES_URL).pipe(
-      catchError(error => {
-        console.error('Error fetching detail purchases', error);
-        return throwError(() => new Error('Error fetching detail purchases'));
-      })
+      catchError(this.handleError('fetching all detail purchases'))
     );
   }
 
+  /** Obtiene un detalle de compra por ID */
   getDetailById(id: number): Observable<DetailPurchase> {
     return this.http.get<DetailPurchase>(`${this.DETAIL_PURCHASES_URL}/${id}`).pipe(
-      catchError(error => {
-        console.error('Error fetching detail purchase by ID', error);
-        return throwError(() => new Error('Error fetching detail purchase by ID'));
-      })
+      catchError(this.handleError(`fetching detail purchase by ID: ${id}`))
     );
   }
 
+  /** Obtiene los detalles de una compra por ID de compra */
   getDetailsByPurchaseId(id_purchases: number): Observable<DetailPurchase[]> {
     return this.http.get<DetailPurchase[]>(`${this.DETAIL_PURCHASES_URL}?id_purchases=${id_purchases}`).pipe(
-      catchError(error => {
-        console.error('Error fetching details by purchase ID', error);
-        return throwError(() => new Error('Error fetching details by purchase ID'));
-      })
+      catchError(this.handleError(`fetching details by purchase ID: ${id_purchases}`))
     );
   }
 
-  createDetail(data: DetailPurchase): Observable<DetailPurchase> {
+  /** Crea un nuevo detalle de compra */
+  createDetail(data: Partial<DetailPurchase>): Observable<DetailPurchase> {
     return this.http.post<DetailPurchase>(this.DETAIL_PURCHASES_URL, data).pipe(
-      catchError(error => {
-        console.error('Error creating detail purchase', error);
-        return throwError(() => new Error('Error creating detail purchase'));
-      })
+      catchError(this.handleError('creating detail purchase'))
     );
   }
 
+  /** Edita un detalle de compra */
   editDetail(id: number, data: Partial<DetailPurchase>): Observable<DetailPurchase> {
     return this.http.put<DetailPurchase>(`${this.DETAIL_PURCHASES_URL}/${id}`, data).pipe(
-      catchError(error => {
-        console.error('Error editing detail purchase', error);
-        return throwError(() => new Error('Error editing detail purchase'));
-      })
+      catchError(this.handleError(`editing detail purchase with ID: ${id}`))
     );
   }
 
+  /** Elimina un detalle de compra */
   deleteDetail(id: number): Observable<void> {
     return this.http.delete<void>(`${this.DETAIL_PURCHASES_URL}/${id}`).pipe(
-      catchError(error => {
-        console.error('Error deleting detail purchase', error);
-        return throwError(() => new Error('Error deleting detail purchase'));
-      })
+      catchError(this.handleError(`deleting detail purchase with ID: ${id}`))
     );
+  }
+
+  /** Método privado para manejar errores y centralizar logs */
+  private handleError(operation: string) {
+    return (error: any) => {
+      console.error(`Error ${operation}`, error);
+      return throwError(() => new Error(`Error ${operation}`));
+    };
   }
 }

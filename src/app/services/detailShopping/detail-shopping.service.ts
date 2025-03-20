@@ -1,38 +1,66 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { catchError } from 'rxjs/operators';
+import { DetailShoppings } from '../../models/detailShoppings';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DetailShoppingService {
 
-  private DETAIL_SHOPPING_URL = environment.DETAIL_SHOPPING_URL;
+  private readonly DETAIL_SHOPPING_URL = environment.DETAIL_SHOPPING_URL;
 
   constructor(private http: HttpClient) { }
 
-  getAllDetails(): Observable<any> {
-    return this.http.get(`${this.DETAIL_SHOPPING_URL}`);
+  /** Obtiene todos los detalles de compras */
+  getAllDetails(): Observable<DetailShoppings[]> {
+    return this.http.get<DetailShoppings[]>(this.DETAIL_SHOPPING_URL).pipe(
+      catchError(this.handleError('fetching all shopping details'))
+    );
   }
 
-  getDetailById(id: string): Observable<any> {
-    return this.http.get(`${this.DETAIL_SHOPPING_URL}/${id}`);
+  /** Obtiene un detalle de compra por su ID */
+  getDetailById(id: string): Observable<DetailShoppings> {
+    return this.http.get<DetailShoppings>(`${this.DETAIL_SHOPPING_URL}/${id}`).pipe(
+      catchError(this.handleError(`fetching detail shopping by ID: ${id}`))
+    );
   }
 
-  getDetailsByShoppingId(id_shopping: number): Observable<any> {
-    return this.http.get(`${this.DETAIL_SHOPPING_URL}?id_shopping=${id_shopping}`);
+  /** Obtiene los detalles de una compra por ID de compra */
+  getDetailsByShoppingId(id_shopping: number): Observable<DetailShoppings[]> {
+    return this.http.get<DetailShoppings[]>(`${this.DETAIL_SHOPPING_URL}?id_shopping=${id_shopping}`).pipe(
+      catchError(this.handleError(`fetching details by shopping ID: ${id_shopping}`))
+    );
   }
 
-  createDetail(data: any): Observable<any> {
-    return this.http.post(this.DETAIL_SHOPPING_URL, data);
+  /** Crea un nuevo detalle de compra */
+  createDetail(data: Partial<DetailShoppings>): Observable<DetailShoppings> {
+    return this.http.post<DetailShoppings>(this.DETAIL_SHOPPING_URL, data).pipe(
+      catchError(this.handleError('creating detail shopping'))
+    );
   }
 
-  editDetail(id: string, data: any): Observable<any> {
-    return this.http.put(`${this.DETAIL_SHOPPING_URL}/${id}`, data);
+  /** Edita un detalle de compra */
+  editDetail(id: string, data: Partial<DetailShoppings>): Observable<DetailShoppings> {
+    return this.http.put<DetailShoppings>(`${this.DETAIL_SHOPPING_URL}/${id}`, data).pipe(
+      catchError(this.handleError(`editing detail shopping with ID: ${id}`))
+    );
   }
 
-  deleteDetail(id: string): Observable<any> {
-    return this.http.delete(`${this.DETAIL_SHOPPING_URL}/${id}`);
+  /** Elimina un detalle de compra */
+  deleteDetail(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.DETAIL_SHOPPING_URL}/${id}`).pipe(
+      catchError(this.handleError(`deleting detail shopping with ID: ${id}`))
+    );
+  }
+
+  /** Método privado para manejar errores y centralizar logs */
+  private handleError(operation: string) {
+    return (error: any) => {
+      console.error(`Error ${operation}`, error);
+      return throwError(() => new Error(`Error ${operation}`));
+    };
   }
 }

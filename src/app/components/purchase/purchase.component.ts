@@ -95,7 +95,7 @@ export class PurchaseComponent implements OnInit {
       price: this.subtotal, // Se envía como referencia, pero el backend lo recalcula
       taxes: this.taxes, // Se envía como referencia, pero el backend lo recalcula
       subtotal: this.subtotal, // Se envía como referencia
-      total: this.total, // Se envía como referencia, pero el backend lo recalcula
+      total_price: this.total, // Se envía como referencia, pero el backend lo recalcula
       detailPurchasesBody: this.selectedProducts.map(product => ({
         id_detail_purchases: '', // Se generará en el backend
         id_purchases: 0, // Se generará en el backend

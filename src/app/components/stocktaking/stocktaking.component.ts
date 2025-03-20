@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product/product.service';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { Product } from '../../models/product';
 
 
 @Component({
@@ -100,40 +101,49 @@ export class StocktakingComponent {
   }
 
 
-  saveProduct() {
-    if (!this.productCode || !this.productName || this.quantity <= 0 || this.buy_price <= 0) {
-      alert("Por favor, complete todos los datos correctamente");
-      return;
-    }
-    const product = this.products.find(p => p.code === this.productCode);
-    if (product) {
-      const newStock = product.stock + this.quantity;
-      const newUnitPrice = this.unit_price;
-
-      this.productsService.updateProductStock(product.id_products, newStock, newUnitPrice).subscribe(() => {
-        alert("Stock actualizado correctamente.");
-        this.loadProducts();
-        this.resetModal();
-      });
-    } else {
-      this.productsService.createProduct({
-        code: this.productCode,
-        name: this.productName,
-        description: this.description,
-        stock: this.quantity,
-        brand: this.brand,
-        
-        buy_price: this.buy_price,
-        code_earn: this.code_earn,
-        taxes_code: this.taxes_code
-
-      }).subscribe(() => {
-        alert("Producto creado correctamente.");
-        this.loadProducts();
-        this.resetModal();
-      });
-    }
+saveProduct() {
+  if (!this.productCode || !this.productName || this.quantity <= 0 || this.buy_price <= 0) {
+    alert("Por favor, complete todos los datos correctamente");
+    return;
   }
+
+  const product = this.products.find(p => p.code === this.productCode);
+  if (product) {
+    const newStock = product.stock + this.quantity;
+    const newUnitPrice = this.unit_price;
+
+    this.productsService.updateProductStock(product.id_product, newStock, newUnitPrice).subscribe(() => {
+      alert("Stock actualizado correctamente.");
+      this.loadProducts();
+      this.resetModal();
+    });
+  } else {
+    const taxesCodeValue = isNaN(Number(this.taxes_code)) ? 0 : Number(this.taxes_code);
+    const totalValue = isNaN(Number(this.taxes_code + this.unit_price)) ? 0 : Number(this.taxes_code + this.unit_price)
+
+    // 🔹 Crear el producto asegurando que tenga TODAS las propiedades requeridas
+    const newProduct: Product = {
+      code: this.productCode,
+      name: this.productName,
+      description: this.description,
+      stock: this.quantity, 
+      brand: this.brand,
+      buy_price: this.buy_price,
+      code_earn: this.code_earn,
+      taxes_code: taxesCodeValue,
+      unit_price: this.unit_price,  
+      total: totalValue,  // 🔹 Calculado
+      active: true  // 🔹 Valor por defecto (ajustar si es necesario)
+    };
+
+    this.productsService.createProduct(newProduct).subscribe(() => {
+      alert("Producto creado correctamente.");
+      this.loadProducts();
+      this.resetModal();
+    });
+  }
+}
+
 
   
 
@@ -163,7 +173,6 @@ prevPage() {
       product.code.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
   }
-
 
 
 // Función para exportar a Excel
