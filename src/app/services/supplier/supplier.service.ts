@@ -31,6 +31,7 @@ export class SupplierService {
       .pipe(catchError(this.handleError));
   }
 
+
   /** ✅ Busca proveedores por nombre */
   getSuppliersByName(name: string): Observable<Supplier[]> {
     return this.http.get<Supplier[]>(`${this.SUPPLIER_URL}?name=${name}`)
