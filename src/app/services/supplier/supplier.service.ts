@@ -11,47 +11,53 @@ import { Supplier } from '../../models/supplier';
 export class SupplierService {
   private SUPPLIER_URL = environment.SUPPLIER_URL;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  createSuppliers(data: Supplier): Observable<any> {
-    return this.http.post(this.SUPPLIER_URL, data)
+  /** ✅ Crea un nuevo proveedor en la base de datos */
+  createSuppliers(data: Supplier): Observable<Supplier> {
+    return this.http.post<Supplier>(this.SUPPLIER_URL, data)
       .pipe(catchError(this.handleError));
   }
 
+  /** ✅ Obtiene todos los proveedores */
   getAllSuppliers(): Observable<Supplier[]> {
     return this.http.get<Supplier[]>(this.SUPPLIER_URL)
       .pipe(catchError(this.handleError));
   }
 
+  /** ✅ Obtiene un proveedor por su ID */
   getSuppliersById(id: number): Observable<Supplier> {
     return this.http.get<Supplier>(`${this.SUPPLIER_URL}/${id}`)
       .pipe(catchError(this.handleError));
   }
 
+  /** ✅ Busca proveedores por nombre */
   getSuppliersByName(name: string): Observable<Supplier[]> {
     return this.http.get<Supplier[]>(`${this.SUPPLIER_URL}?name=${name}`)
       .pipe(catchError(this.handleError));
   }
 
+  /** 🔄 Actualiza los datos generales de un proveedor (nombre, dirección, etc.) */
   updateSupplier(id_suppliers: number, supplierData: Partial<Supplier>): Observable<Supplier> {
     return this.http.put<Supplier>(`${this.SUPPLIER_URL}/${id_suppliers}`, supplierData)
       .pipe(catchError(this.handleError));
   }
 
-  updateSupplierStatus(id_suppliers: number, active: boolean): Observable<any> {
-    return this.http.put(`${this.SUPPLIER_URL}/${id_suppliers}`, { active })
+  /** 🔄 Cambia solo el estado de un proveedor (activo/inactivo) */
+  updateSupplierStatus(id_suppliers: number, active: boolean): Observable<Supplier> {
+    return this.http.put<Supplier>(`${this.SUPPLIER_URL}/${id_suppliers}`, { active })
       .pipe(catchError(this.handleError));
   }
 
-  /** 🔴 Desactivar/Activar proveedor (NO lo elimina de la BD) */
-  deleteSupplier(id_suppliers: number): Observable<any> {
-    return this.http.delete(`${this.SUPPLIER_URL}/${id_suppliers}`)
+  /** 🔴 Desactiva un proveedor (NO lo elimina, solo lo desactiva en el sistema) */
+  deleteSupplier(id_suppliers: number): Observable<Supplier> {
+    return this.http.delete<Supplier>(`${this.SUPPLIER_URL}/${id_suppliers}`)
       .pipe(catchError(this.handleError));
   }
 
-  /** ❌ Eliminar proveedor permanentemente */
-  destroySupplier(id_suppliers: number): Observable<any> {
-    return this.http.delete(`${this.SUPPLIER_URL}/destroy/${id_suppliers}`)
+  /** ❌ Elimina permanentemente un proveedor de la base de datos */
+  destroySupplier(id_suppliers: number): Observable<Supplier> {
+    return this.http.delete<Supplier>(`${this.SUPPLIER_URL}/destroy/${id_suppliers}`)
       .pipe(catchError(this.handleError));
   }
 
