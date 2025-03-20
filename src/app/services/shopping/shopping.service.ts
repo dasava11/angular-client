@@ -1,36 +1,38 @@
 import { Injectable } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Shopping } from '../../models/shoppings';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ShoppingService {
-  
+  private apiUrl = environment.SHOPPING_URL;
 
-  private SHOPPING_URL = environment.SHOPPING_URL;
+  constructor(private http: HttpClient) {}
 
-  constructor(private http: HttpClient) { }
-
-  getAllShoppings(): Observable<any> {
-    return this.http.get(`${this.SHOPPING_URL}`);
+  createShopping(shoppingData: Shopping): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}`, shoppingData)
+      .pipe(
+        catchError(this.handleError)
+      );
   }
 
-  getShoppingById(id: number): Observable<any> {
-    return this.http.get(`${this.SHOPPING_URL}/${id}`);
-  }
+  private handleError(error: HttpErrorResponse) {
+    console.error('Error en la solicitud:', error);
+    let errorMsg = 'Ocurrió un error desconocido';
 
-  createShopping(data: any): Observable<any> {
-    return this.http.post(this.SHOPPING_URL, data);
-  }
-
-  updateShopping(id: number, data: any): Observable<any> {
-    return this.http.put(`${this.SHOPPING_URL}/${id}`, data);
-  }
-
-  deleteShopping(id: number): Observable<any> {
-    return this.http.delete(`${this.SHOPPING_URL}/${id}`);
+    if (error.error instanceof ErrorEvent) {
+      errorMsg = `Error del cliente: ${error.error.message}`;
+    } else {
+      if (error.status === 400) {
+        errorMsg = error.error.error || 'Solicitud incorrecta';
+      } else if (error.status === 500) {
+        errorMsg = 'Error interno del servidor';
+      }
+    }
+    return throwError(() => new Error(errorMsg));
   }
 }
-

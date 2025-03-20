@@ -1,8 +1,8 @@
 import { Component, HostListener, OnInit } from '@angular/core';
-import { CashRegisterService } from '../../services/cash-register.service';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Product } from '../../models/product';
+import { DetailShoppings } from '../../models/detailShoppings';
 import { ProductService } from '../../services/product/product.service';
 import { ShoppingService } from '../../services/shopping/shopping.service';
 
@@ -19,161 +19,176 @@ export class CashRegisterComponent {
   purchaseSummary: Product[] = [];
   barcodeInput = new FormControl('');
   products: Product[] = [];
-  subtotal = 0;
-  tax = 0;
-  total = 0;
   isModalOpen = false;
   cashReceived: number = 0;
   change: number = 0;
 
-  @HostListener('window:keydown', ['$event'])
-  handleKeyboardEvent(event: KeyboardEvent) {
-    if (event.key === ' ') {
-      this.openPaymentModal();
+  shoppingData = {
+        date: new Date(),
+        user_id: 1,
+        customer: 123,
+        payment_method: 'Efectivo',
+        taxes: 0,
+        subtotal: 0,
+        total_sale: 0,
+        detail_shopping: [] as DetailShoppings[]
+    };
+
+    modalVisible: boolean = false;
+
+    constructor(
+        private shoppingService: ShoppingService,
+        private productService: ProductService
+    ) {}
+
+    // 🔹 Agregado: Escanear productos por código de barras
+    scanProduct() {
+        const code = this.barcodeInput.value;
+        if (!code) return;
+
+        this.productService.getProductByCode(code).subscribe(product => {
+            if (!product) {
+                alert("Producto no encontrado");
+                return;
+            }
+
+            const existingProduct = this.shoppingData.detail_shopping.find(p => p.id_products === product.id);
+
+            if (existingProduct) {
+                existingProduct.count += 1;
+                existingProduct.total = existingProduct.count * existingProduct.unit_price;
+            } else {
+                const newItem: DetailShoppings = {
+                    id_products: product.id,
+                    count: 1,
+                    unit_price: product.unit_price,
+                    value_taxes: 0, // Lo maneja el backend
+                    total: product.unit_price
+                };
+
+                this.shoppingData.detail_shopping.push(newItem);
+            }
+
+            this.calculateTotals();
+            this.barcodeInput.reset();
+        }, error => {
+            alert("Error al buscar el producto");
+        });
     }
 
-  }
+    // 🔹 Agregado: Eliminar productos del carrito
+    removeProduct(productId: number) {
+        const index = this.shoppingData.detail_shopping.findIndex(p => p.id_products === productId);
 
-  constructor(
-    private productService: ProductService,
-    private shoppingService: ShoppingService
-  ) { }
+        if (index !== -1) {
+            if (this.shoppingData.detail_shopping[index].count > 1) {
+                this.shoppingData.detail_shopping[index].count -= 1;
+                this.shoppingData.detail_shopping[index].total = this.shoppingData.detail_shopping[index].count * this.shoppingData.detail_shopping[index].unit_price;
+            } else {
+                this.shoppingData.detail_shopping.splice(index, 1);
+            }
 
-  openPaymentModal() {
-    this.isModalOpen = true;
-    this.purchaseSummary = [...this.products];
+            this.calculateTotals();
+        }
+    }
 
-    // console.log('Compra finalizada');
-    // console.log(this.products)
-    
-    // const purchaseData = {
-    //   date: new Date(),
-    //   userId: 5, 
-    //   customer: 1, 
-    //   payment_method: "Efectivo", 
-    //   detailShoppingBody: this.products.map(product => ({
-    //     code: product.code,
-    //     count: product.quantity,
-    //     unit_price: product.unit_price,
-    //     value_taxes: product.value_taxes,
-    //     total: (product.unit_price + (product.unit_price * product.value_taxes) / 100) * product.quantity
-    //   })),
-    // };
+    // 🔹 Manteniendo la nueva forma de calcular totales
+    calculateTotals() {
+        this.shoppingData.subtotal = this.shoppingData.detail_shopping.reduce(
+            (acc, item) => acc + (item.unit_price * item.count), 0
+        );
+        this.shoppingData.total_sale = this.shoppingData.subtotal; // El backend sumará los impuestos
+    }
 
-    
-    // this.products.forEach(product => {
-    //   product.total = product.unit_price * product.quantity; // 🔹 Asegurar que 'total' tenga un valor válido
-    // });
+    // 🔹 Confirmación de compra
+    openConfirmationModal() {
+        this.modalVisible = true;
+    }
 
-    // this.shoppingService.createShopping(purchaseData).subscribe({
-    //   next: (response: any) => {
-    //     alert(`Compra realizada con éxito. Total: ${response.shopping.total_sale}`);
-    //     this.products = [];
-    //     this.updateTotals();
-    //   },
-    //   error: (error: { error: { error: string; }; }) => {
-    //     alert("Error al finalizar la compra: " + error.error.error);
-    //   }
-    // });
-  }
+    confirmShopping() {
+        if (this.shoppingData.detail_shopping.length === 0) {
+            alert("Debe agregar al menos un producto al carrito");
+            return;
+        }
 
-  closePaymentModal() {
-    this.isModalOpen = false;
-    this.cashReceived = 0;
-    this.change = 0;
-  }
+        this.shoppingService.createShopping(this.shoppingData).subscribe({
+            next: (response) => {
+                alert(response.message);
+                this.resetShopping();
+            },
+            error: (error) => {
+                alert(error.message);
+            }
+        });
 
-  calculateChange() {
-    this.change = Math.max(0, this.cashReceived - this.total);
-  }
+        this.modalVisible = false;
+    }
 
-  updateChange() {
-    this.change = this.cashReceived - this.total;
-  }
+    resetShopping() {
+        this.shoppingData = {
+            date: new Date(),
+            user_id: 1,
+            customer: 123,
+            payment_method: 'Efectivo',
+            taxes: 0,
+            subtotal: 0,
+            total_sale: 0,
+            detail_shopping: []
+        };
+    }
 
-  confirmPayment() {
-    if (this.cashReceived >= this.total) {
-      alert(`Cambio a devolver: ${this.change.toFixed(2)}`);
-      this.closePaymentModal();
-      this.resetRegister();
-    } else {
-      alert("El dinero recibido es insuficiente.");
+    // 🔹 Agregado: Imprimir resumen de compra
+    printSummary() {
+        let summaryContent = `
+            <h2>Factura de Compra</h2>
+            <p>Fecha: ${this.shoppingData.date.toLocaleString()}</p>
+            <p>Cliente ID: ${this.shoppingData.customer}</p>
+            <p>Método de pago: ${this.shoppingData.payment_method}</p>
+            <h3>Detalles de la compra:</h3>
+            <table border="1" cellspacing="0" cellpadding="5">
+                <tr>
+                    <th>Producto ID</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Total</th>
+                </tr>
+        `;
+
+        this.shoppingData.detail_shopping.forEach(item => {
+            summaryContent += `
+                <tr>
+                    <td>${item.id_products}</td>
+                    <td>${item.count}</td>
+                    <td>${item.unit_price.toFixed(2)}</td>
+                    <td>${item.total.toFixed(2)}</td>
+                </tr>
+            `;
+        });
+
+        summaryContent += `
+            </table>
+            <h3>Subtotal: ${this.shoppingData.subtotal.toFixed(2)}</h3>
+            <h3>Total Venta: ${this.shoppingData.total_sale.toFixed(2)}</h3>
+        `;
+
+        const printWindow = window.open('', '', 'width=600,height=600');
+        if (printWindow) {
+            printWindow.document.write('<html><head><title>Factura</title></head><body>');
+            printWindow.document.write(summaryContent);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
+        }
+    }
+
+    // 🔹 Confirmación del atajo de teclado para abrir el modal de pago
+    @HostListener('window:keydown', ['$event'])
+    handleKeyboardEvent(event: KeyboardEvent) {
+        if (event.key === ' ') {
+            this.openConfirmationModal();
+        }
     }
   }
-
-  resetRegister() {
-    this.products = [];
-    this.subtotal = 0;
-    this.tax = 0;
-    this.total = 0;
-    this.barcodeInput.reset();
-  }
-
-  scanProduct() {
-    const code = this.barcodeInput.value;
-    if (!code) return;
-
-    this.productService.getProductByCode(code).subscribe(product => {
-      if (!product) {
-        console.log("Producto no encontrado");
-        return;
-      }
-
-      const existingProduct = this.products.find(p => p.code === product.code);
-
-      if (existingProduct) {
-        existingProduct.quantity += 1; // Incrementa la cantidad si ya está en la lista
-      } else {
-
-        this.products.push({ ...product, quantity: 1 });
-      }
-      this.updateTotals();
-      this.barcodeInput.reset();
-    },
-      (error) => {
-        console.error('Producto no encontrado:', error);
-      }
-    );
-  }
-
-  removeProduct(product: Product) {
-
-    const index = this.products.findIndex(p => p.code === product.code);
-
-    if (index !== -1) {
-      if (this.products[index].quantity > 1) {
-        this.products[index].quantity -= 1; // Resta una unidad si hay más de una
-      } else {
-        this.products.splice(index, 1); // Elimina solo si queda en 0
-      }
-      this.updateTotals();
-    }
-  }
-
-  updateTotals() {
-    this.subtotal = this.products.reduce((sum, p) => sum + p.unit_price * p.quantity, 0);
-    this.tax = this.subtotal * 0.19;
-    this.total = this.subtotal + this.tax;
-  }
-
-  printSummary() {
-    const printContent = document.getElementById('invoice')?.innerHTML;
-    if (printContent) {
-
-      const printWindow = window.open('', '', 'width=600,height=600');
-      if (printWindow) {
-        printWindow.document.write('<html><head><title>Factura</title></head><body>');
-        printWindow.document.write(printContent);
-        printWindow.document.write('</body></html>');
-        printWindow.document.close();
-        printWindow.print();
-      }
-    }
-  }
-
-}
-
-
 
 
 
